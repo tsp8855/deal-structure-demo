@@ -495,17 +495,23 @@ function aiDraft(description, prior, result) {
           graph.edges=graph.edges.filter(edge=>edge.target!==entity.id);
           break;
         case 'merge_entity':
-        case 'remove_entity':
-          if (graph.edges.some(edge=>edge.owner===entity.id)) throw Error('Clarify who receives the interests held by '+entity.name+'.');
+        case 'remove_entity': {
+          let removed=entity;
           if (op.kind==='merge_entity') {
-            const survivor=find(op.recipient);
-            if (survivor===entity) throw Error('The merging entity and survivor must be different.');
-            mergers.push({source:{...entity},target:survivor.id});
+            const destination=find(op.recipient);
+            const survivor=op.name==null?destination:find(op.name);
+            if (destination===entity || (survivor!==entity && survivor!==destination)) {
+              throw Error('The merger needs two different parties and a survivor from those parties.');
+            }
+            removed=survivor===entity?destination:entity;
+            mergers.push({source:{...removed},target:survivor.id,from:entity.id,to:destination.id});
           }
-          graph.edges=graph.edges.filter(edge=>edge.target!==entity.id);
-          graph.entities=graph.entities.filter(other=>other!==entity);
-          resets.delete(entity.id);
+          if (graph.edges.some(edge=>edge.owner===removed.id)) throw Error('Clarify who receives the interests held by '+removed.name+'.');
+          graph.edges=graph.edges.filter(edge=>edge.target!==removed.id);
+          graph.entities=graph.entities.filter(other=>other!==removed);
+          resets.delete(removed.id);
           break;
+        }
         case 'transfer':
           if (!['entity','seller','all'].includes(op.basis) ||
               (op.basis==='all'?op.percentage!==null:!validPct(op.percentage))) throw Error('The model did not specify a valid transfer basis and percentage.');
@@ -536,7 +542,7 @@ function slideMergers(graph,mergers=[]) {
     return true;
   }).reverse();
 }
-function componentLayout(graph,mergers=[]) {
+function componentLayout(graph,mergers=[],placement) {
   let order;
   try { order = validate(graph); }
   catch { return null; }
@@ -576,8 +582,8 @@ function componentLayout(graph,mergers=[]) {
     band.rows=Math.max(band.rows,component.ranks.length);
     band.components.push(component);
   }
-  const naturalWidth = Math.max(width,...bands.map(band=>band.columns*138+(band.components.length-1)*40+85));
-  const naturalHeight = Math.max(height,bands.reduce((total,band)=>total+band.rows*112+35,0)+34);
+  let naturalWidth = Math.max(width,...bands.map(band=>band.columns*138+(band.components.length-1)*40+85));
+  let naturalHeight = Math.max(height,bands.reduce((total,band)=>total+band.rows*112+35,0)+34);
   const nodes=new Map();
   let bandY = naturalHeight===height ? (height-(bands[0]?.rows ?? 0)*112)/2 : 28;
   bands.forEach(band=>{
@@ -594,6 +600,15 @@ function componentLayout(graph,mergers=[]) {
     });
     bandY+=band.rows*112+35;
   });
+  if (mergers.length && placement) {
+    const newNodes=[...nodes.keys()].filter(id=>!Object.hasOwn(placement.nodes,id));
+    naturalWidth=placement.width+Math.ceil(newNodes.length/3)*160;
+    naturalHeight=placement.height;
+    for (const id of nodes.keys()) {
+      if (Object.hasOwn(placement.nodes,id)) nodes.set(id,placement.nodes[id]);
+    }
+    newNodes.forEach((id,i)=>nodes.set(id,{x:placement.width+80+Math.floor(i/3)*160,y:65+(i%3)*112,w:124,h:59}));
+  }
   const edges = graph.edges.map(edge=>{
     const a=nodes.get(edge.owner),b=nodes.get(edge.target);
     const outgoing=graph.edges.filter(line=>line.owner===edge.owner).sort((x,y)=>nodes.get(x.target).x-nodes.get(y.target).x);
@@ -622,16 +637,31 @@ function componentLayout(graph,mergers=[]) {
     }
     return {...edge,points,label};
   });
-  const arrows=mergers.map(({source,target},index)=>{
-    const a=nodes.get(source.id), b=nodes.get(target);
-    const sourceShape=types[source.type].shape, targetShape=types[byId.get(target).type].shape;
-    const rightEdge=box=>box.x+box.w/2;
-    const leftEdge=box=>box.x-box.w/2;
-    const adjacent=b.x-a.x<=a.w+68;
-    const points=adjacent
-      ? [{x:rightEdge(a)-(sourceShape==='triangle'?a.w/4:0),y:a.y},{x:leftEdge(b)+(targetShape==='triangle'?b.w/4:0)-2,y:b.y}]
-      : [{x:a.x,y:a.y-a.h/2},{x:a.x,y:a.y-a.h/2-12-index%3*6},{x:b.x,y:b.y-b.h/2-12-index%3*6},{x:b.x,y:b.y-b.h/2-3}];
-    return {points, source:source.name,target:byId.get(target).name};
+  const arrows=mergers.map(merge=>{
+    const from=merge.from??merge.source.id,to=merge.to??merge.target;
+    const a=nodes.get(from),b=nodes.get(to);
+    const start=byId.get(from),end=byId.get(to);
+    const horizontal=Math.abs(b.x-a.x)>=Math.abs(b.y-a.y);
+    const edgePoint=(box,type,other,gap)=>{
+      const shape=types[type].shape;
+      if (horizontal) {
+        const dx=shape==='triangle'?box.w/4:box.w/2;
+        return {x:box.x+Math.sign(other.x-box.x)*(dx+gap),y:box.y};
+      }
+      const dy=shape==='wave'?box.h*.375:box.h/2;
+      return {x:box.x,y:box.y+Math.sign(other.y-box.y)*(dy+gap)};
+    };
+    const head=edgePoint(a,start.type,b,1),tail=edgePoint(b,end.type,a,3);
+    let points=[head,tail];
+    const intervening=horizontal && a.y===b.y && [...nodes].some(([id,box])=>
+      id!==from && id!==to && Math.abs(box.y-a.y)<box.h/2 &&
+      box.x>Math.min(a.x,b.x) && box.x<Math.max(a.x,b.x));
+    if (intervening) {
+      const direction=Math.sign(b.x-a.x),y=Math.min(a.y-a.h/2,b.y-b.h/2)-12;
+      const fromX=head.x+direction*12,toX=tail.x-direction*12;
+      points=[head,{x:fromX,y:head.y},{x:fromX,y},{x:toX,y},{x:toX,y:tail.y},tail];
+    }
+    return {points,source:start.name,target:end.name};
   });
   return {nodes,edges,entities,arrows,width:naturalWidth,height:naturalHeight};
 }
@@ -680,9 +710,9 @@ function entityTextLayout(type) {
   if (t.tag) return {offset:-6,width:.86,size:12,chars:17};
   return {offset:0,width:.88,size:13,chars:17};
 }
-function diagramSvg(graph,mergers) {
+function diagramSvg(graph,mergers,placement) {
   if (!graph.entities.length) return '<svg class="diagram" viewBox="0 0 920 375" aria-hidden="true"></svg>';
-  const l=componentLayout(graph,mergers);
+  const l=componentLayout(graph,mergers,placement);
   if (!l) return '<svg class="diagram" viewBox="0 0 920 375" role="img" aria-label="Chart unavailable"><text x="460" y="188" text-anchor="middle" fill="#526176" font-size="19">'+(l?'Add entities to draw this chart.':'Edit the ownership lines to draw this chart.')+'</text></svg>';
   let svg='<svg class="diagram" viewBox="0 0 '+l.width+' '+l.height+'" role="img" aria-label="Entity ownership chart"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0l10 5-10 5z" fill="#000"/></marker></defs>';
   l.edges.forEach(edge=>{
@@ -757,7 +787,7 @@ const syntaxStep=[
   'Y creates a wholly owned LLC Newco. X changes its name to Target LLC.',
   'Newco elects to be taxed as a corporation.',
   'Post-closing ownership of X: Z 70%, B 30%. Include all owners and a total of 100%.',
-  'X merges into Z. Name the survivor and describe any changes to ownership or subsidiary transfers.',
+  'Show X merging into Z. X survives and is now 100% owned by Y. State any subsidiary transfers.',
   'Use “Note: …” for narrative that does not change ownership. For complex steps, you can state the final ownership directly or use Edit chart.'
 ];
 const queuedOffset = () => typeof selected==='string' && selected.startsWith('queued:') ? Number(selected.slice(7)) : -1;
@@ -862,7 +892,7 @@ function render() {
   const caption=index>0?current.description:'';
   $('sheet-caption').textContent=caption;
   $('sheet-caption').hidden=!caption;
-  $('diagram').innerHTML=diagramSvg(current.graph,current.mergers);
+  $('diagram').innerHTML=diagramSvg(current.graph,current.mergers,current.mergerPlacement);
   $('sheet-project').textContent=project.name || 'Transaction structure';
   $('sheet-no').textContent=String(index+1).padStart(2,'0');
   $('status').className='tag '+(draft||waiting?'review':example?'':'ok');
@@ -973,7 +1003,18 @@ $('interpret').onclick=async()=>{
     if (!stillCurrent()) return;
     const result=aiDraft(description,prior,data);
     const inputTitle=rawTitle.trim();
+    const preceding=project.approved[index-1];
+    let mergerPlacement=active?.mergerPlacement;
+    if (!result.issues.length) {
+      mergerPlacement=null;
+      if (result.mergers?.length && preceding) {
+        const layout=componentLayout(preceding.graph,preceding.mergers,preceding.mergerPlacement);
+        mergerPlacement={nodes:Object.fromEntries(layout.nodes),width:layout.width,height:layout.height,
+          pptxTop:captionLayout(preceding,index-1).diagramTop};
+      }
+    }
     project.draft={
+      mergerPlacement,
       ...result,
       graph:result.issues.length && active?active.graph:result.graph,
       mergers:result.issues.length && active?active.mergers:result.mergers,
@@ -1006,7 +1047,7 @@ $('approve').onclick=()=>{
     project.approved.splice(index+1);
     project.pending=[...later,...project.pending];
   }
-  project.approved[index]={title,description,graph,inputTitle,mergers:draft.mergers??[],manual:Boolean(manual),ai:draft.ai===true};
+  project.approved[index]={title,description,graph,inputTitle,mergers:draft.mergers??[],mergerPlacement:draft.mergerPlacement??null,manual:Boolean(manual),ai:draft.ai===true};
   if (draft.queued) project.pending.shift();
   if (!draft.replace && !draft.queued) { project.stepText=''; project.stepTitle=''; }
   draftInput=null;
@@ -1141,14 +1182,19 @@ function contentTypes(count) {
   for (let i=1;i<=count;i++) overrides.push(['/ppt/slides/slide'+i+'.xml',p+'slide+xml']);
   return xmlDeclaration+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+overrides.map(([name,type])=>'<Override PartName="'+name+'" ContentType="'+type+'"/>').join('')+'</Types>';
 }
-function toSlide(slide,i,projectName) {
-  const l=componentLayout(slide.graph,slide.mergers);
+function captionLayout(slide,i) {
   const caption=i?slide.description:'';
   const capLines=caption?caption.split('\n').flatMap(line=>wrapText(line,130)):[];
   const capSize=capLines.length>12?9:capLines.length>6?11:15;
   const maxCapLines=16;
   const shown=capLines.length>maxCapLines?[...capLines.slice(0,maxCapLines-1),capLines.slice(maxCapLines-1).join(' ')]:capLines;
-  const diagramTop=140+Math.min(170,shown.length*(capSize+3)+6);
+  const captionBottom=140+Math.min(170,shown.length*(capSize+3)+6);
+  const diagramTop=Math.max(206,captionBottom,slide.mergerPlacement?.pptxTop??0);
+  return {shown,capSize,diagramTop};
+}
+function toSlide(slide,i,projectName) {
+  const l=componentLayout(slide.graph,slide.mergers,slide.mergerPlacement);
+  const {shown,capSize,diagramTop}=captionLayout(slide,i);
   const scale=Math.min(1140/l.width,(650-diagramTop)/l.height);
   const originX=(1280-l.width*scale)/2, originY=diagramTop+(650-diagramTop-l.height*scale)/2;
   const X=x=>originX+x*scale, Y=y=>originY+y*scale;
