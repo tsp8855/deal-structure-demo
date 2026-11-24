@@ -69,14 +69,17 @@ supporting clause verbatim. If none is available, ask a question.
   entire ownership table. Follow it with set_ownership for each final owner.
 - remove_entity: entity. Use only when explicitly gone outside a merger.
   Address any interests it owns before removing it.
-- merge_entity: entity is the disappearing entity and recipient is the
-  surviving entity. For "A merges into B", set entity=A and recipient=B.
-  An explicitly directed merger should produce this operation, never a plain
-  remove_entity. First handle any interests held by the disappearing entity
-  if their disposition is specified. Preserve the survivor's current charted
-  ownership unless the user specifies a change; do not assume consideration
-  or new percentages. If the description says "merges with" and the survivor
-  cannot be determined from the text, ask which entity survives.
+- merge_entity: entity is the source of the dotted arrow, recipient its
+  destination, and name is the explicitly named survivor, if one is given.
+  By default the recipient survives. An explicit survivor overrides that
+  default without reversing the diagram arrow. For "T merges into S. T
+  survives and is now 100% owned by A", use entity=T, recipient=S, name=T;
+  clear T's previous owners and set A's ownership in T to 100%. S disappears.
+  An expressly directed merger should produce merge_entity. First handle any
+  interests held by the disappearing entity if their disposition is stated.
+  Preserve other charted ownership unless changed by the description. When
+  only "merges with" is given and the survivor is explicit, draw the arrow
+  from the other participant to that survivor. Ask if both are unclear.
 - transfer: entity is the owned entity, owner is the seller, recipient is the
   buyer, basis is "entity" for percentage points of the target, "seller" for a
   percentage of the seller's holding, or "all" for the seller's entire holding
@@ -151,25 +154,78 @@ def validate_input(payload):
 
 
 def direct_merge_from_chart(payload):
-    """Resolve a complete, unambiguous merger sentence against charted names."""
-    match = re.fullmatch(r"\s*(.+?)\s+merges\s+into\s+(.+?)\s*[.]?\s*",
-                         payload["description"], flags=re.IGNORECASE)
-    if not match:
+    """Interpret a complete merger description with fully explicit chart facts."""
+    graph = payload["graph"]
+    evidence = payload["description"].strip()
+    def matches_name(name, value):
+        return value.casefold().rstrip(".")==name.casefold().rstrip(".")
+    def find(value):
+        matches = [entity for entity in graph["entities"] if matches_name(entity["name"], value.strip())]
+        return matches[0] if len(matches)==1 else None
+
+    # Keep periods in legal names such as "Acme Inc." when they are followed by a verb.
+    description = re.sub(r"\b(?:Inc|Ltd|Corp|Co)\.(?=\s+(?:merg|surviv|is|will|now|already|own))",
+                         lambda m: m[0].replace(".", "\uE000"), evidence, flags=re.I)
+    clauses = [part.replace("\uE000", ".").strip() for part in re.split(r"[.!?;]+(?=\s|$)|\n+", description) if part.strip()]
+    arrow, survivor, owner = None, None, None
+    participants = []
+    ownership_subject = None
+    for clause in clauses:
+        if match := re.fullmatch(r"(.+?)\s+(?:merg(?:es|ers|ed)|will merge|is merged)\s+into\s+(.+)", clause, re.I):
+            if arrow:
+                return None
+            arrow = tuple(find(name) for name in match.groups())
+        elif match := re.fullmatch(r"(.+?)\s+and\s+(.+?)\s+(?:(?:are going to|will)\s+merge|are merging|merge)", clause, re.I):
+            participants.append(tuple(find(name) for name in match.groups()))
+        elif match := re.fullmatch(
+            r"(.+?)\s+(?:survives|will survive|is the surviv(?:or|ing entity|ing company))"
+            r"(?:\s+and\s+(?:is(?: now)?|becomes)\s+(?:100\s*%|wholly)\s+owned by\s+(.+))?", clause, re.I):
+            if survivor or (match[2] and owner):
+                return None
+            survivor = find(match[1])
+            if survivor is None:
+                return None
+            if match[2]:
+                owner = find(match[2])
+                if owner is None:
+                    return None
+                ownership_subject = survivor
+        elif match := re.fullmatch(r"(.+?)\s+(?:is(?: now)?|becomes)\s+(?:100\s*%|wholly)\s+owned by\s+(.+)", clause, re.I):
+            if owner:
+                return None
+            ownership_subject, owner = (find(name) for name in match.groups())
+            if not ownership_subject or not owner:
+                return None
+        elif match := re.fullmatch(r"(.+?)\s+(?:now\s+)?owns\s+100\s*%\s+of\s+(.+)", clause, re.I):
+            if owner:
+                return None
+            owner, ownership_subject = (find(name) for name in match.groups())
+            if not ownership_subject or not owner:
+                return None
+        else:
+            return None
+
+    if not arrow or None in arrow or arrow[0] == arrow[1]:
+        return None
+    if any(None in pair or {e["id"] for e in pair} != {e["id"] for e in arrow} for pair in participants):
+        return None
+    explicit_survivor = survivor
+    survivor = survivor or arrow[1]
+    if survivor not in arrow or (owner and (ownership_subject!=survivor or owner in arrow)):
+        return None
+    removed = arrow[1] if survivor==arrow[0] else arrow[0]
+    if any(edge["owner"] == removed["id"] for edge in graph["edges"]):
         return None
 
-    def chart_entity(text):
-        key = text.casefold().rstrip(".")
-        candidates = [entity for entity in payload["graph"]["entities"]
-                      if entity["name"].casefold().rstrip(".") == key]
-        return candidates[0] if len(candidates) == 1 else None
+    def op(kind, entity, **fields):
+        return {**dict.fromkeys(FIELDS), "kind": kind, "entity": entity["name"], "evidence": evidence, **fields}
 
-    source, survivor = (chart_entity(name) for name in match.groups())
-    if source is None or survivor is None or source["id"] == survivor["id"]:
-        return None
-    if any(edge["owner"] == source["id"] for edge in payload["graph"]["edges"]):
-        return None
-    return {**dict.fromkeys(FIELDS), "kind": "merge_entity", "entity": source["name"],
-            "recipient": survivor["name"], "evidence": payload["description"].strip()}
+    operations = [op("merge_entity", arrow[0], recipient=arrow[1]["name"],
+                     name=explicit_survivor["name"] if explicit_survivor else None)]
+    if owner:
+        operations.extend([op("clear_owners", survivor),
+                           op("set_ownership", survivor, owner=owner["name"], percentage=100)])
+    return operations
 
 
 def interpret(payload, key, model):
@@ -177,9 +233,8 @@ def interpret(payload, key, model):
     instructions = INSTRUCTIONS
     if direct_merge:
         instructions += (
-            "\nThe supplied description names both merger parties. The disappearing entity is "
-            + json.dumps(direct_merge["entity"]) + " and the survivor is "
-            + json.dumps(direct_merge["recipient"]) + ". Return exactly one merge_entity operation."
+            "\nThe submitted wording and chart explicitly resolve this merger. Use these operations: "
+            + json.dumps(direct_merge, ensure_ascii=False, separators=(",", ":"))
         )
     data = {
         "model": model,
@@ -211,8 +266,8 @@ def interpret(payload, key, model):
             raise TypeError
         if direct_merge:
             operations = result.get("operations")
-            if operations != [direct_merge] or result.get("questions") or result.get("no_change"):
-                return {"operations": [direct_merge], "questions": [], "no_change": False}
+            if operations != direct_merge or result.get("questions") or result.get("no_change"):
+                return {"operations": direct_merge, "questions": [], "no_change": False}
         return result
     except (KeyError, IndexError, TypeError, json.JSONDecodeError) as error:
         raise ValueError("OpenRouter returned an unusable answer. Try again or edit the chart directly.") from error
