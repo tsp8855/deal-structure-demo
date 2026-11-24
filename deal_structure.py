@@ -150,11 +150,41 @@ def validate_input(payload):
     return {"description": description, "graph": graph}
 
 
+def direct_merge_from_chart(payload):
+    """Resolve a complete, unambiguous merger sentence against charted names."""
+    match = re.fullmatch(r"\s*(.+?)\s+merges\s+into\s+(.+?)\s*[.]?\s*",
+                         payload["description"], flags=re.IGNORECASE)
+    if not match:
+        return None
+
+    def chart_entity(text):
+        key = text.casefold().rstrip(".")
+        candidates = [entity for entity in payload["graph"]["entities"]
+                      if entity["name"].casefold().rstrip(".") == key]
+        return candidates[0] if len(candidates) == 1 else None
+
+    source, survivor = (chart_entity(name) for name in match.groups())
+    if source is None or survivor is None or source["id"] == survivor["id"]:
+        return None
+    if any(edge["owner"] == source["id"] for edge in payload["graph"]["edges"]):
+        return None
+    return {**dict.fromkeys(FIELDS), "kind": "merge_entity", "entity": source["name"],
+            "recipient": survivor["name"], "evidence": payload["description"].strip()}
+
+
 def interpret(payload, key, model):
+    direct_merge = direct_merge_from_chart(payload)
+    instructions = INSTRUCTIONS
+    if direct_merge:
+        instructions += (
+            "\nThe supplied description names both merger parties. The disappearing entity is "
+            + json.dumps(direct_merge["entity"]) + " and the survivor is "
+            + json.dumps(direct_merge["recipient"]) + ". Return exactly one merge_entity operation."
+        )
     data = {
         "model": model,
         "messages": [
-            {"role": "system", "content": INSTRUCTIONS},
+            {"role": "system", "content": instructions},
             {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}
         ],
         "provider": {"require_parameters": True},
@@ -179,6 +209,10 @@ def interpret(payload, key, model):
         result = json.loads(choice["message"]["content"])
         if not isinstance(result, dict):
             raise TypeError
+        if direct_merge:
+            operations = result.get("operations")
+            if operations != [direct_merge] or result.get("questions") or result.get("no_change"):
+                return {"operations": [direct_merge], "questions": [], "no_change": False}
         return result
     except (KeyError, IndexError, TypeError, json.JSONDecodeError) as error:
         raise ValueError("OpenRouter returned an unusable answer. Try again or edit the chart directly.") from error
