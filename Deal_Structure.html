@@ -1,0 +1,1252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Draft tax ownership charts, review each transaction step, and export to PowerPoint.">
+<title>Deal Structure | Tax ownership charts</title>
+<style>
+:root{--ink:#18243b;--muted:#526176;--subtle:#68778d;--line:#dce3ed;--paper:#fff;--floor:#f5f7fc;--brand:#4039b8;--light:#efedff;--green:#176748;--shadow:0 12px 28px #27346b09;--serif:Georgia,'Times New Roman',serif}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--floor);font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.47}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #8279ed;outline-offset:2px}button{border:1px solid var(--line);background:white;color:var(--ink);padding:9px 13px;border-radius:8px;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1.35}button:hover:not(:disabled){border-color:#8e88de;background:#f9f8ff}button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}button.primary:hover:not(:disabled){background:#332b9d}button.quiet{border-color:transparent;background:transparent;color:var(--brand);padding:5px 7px}button svg,.mini-icon{width:16px;height:16px;flex:none}h1,h2,p{margin:0}h1,h2{font-family:var(--serif);font-weight:500}h1{font-size:clamp(32px,4vw,51px);line-height:1.04;letter-spacing:-.045em}h2{font-size:25px;letter-spacing:-.03em;line-height:1.2}a{color:var(--brand)}.top{background:#111b32;color:white;min-height:67px;display:flex;align-items:center;justify-content:space-between;padding:12px clamp(18px,4.4vw,70px);gap:16px}.identity{display:flex;gap:12px;align-items:center;font-size:16px;font-weight:720;letter-spacing:-.02em}.logo{display:grid;place-items:center;width:36px;height:36px;background:#7165ee;border-radius:9px;color:#fff}.logo svg{width:23px;height:23px}.top-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.top .export{background:#292f52;border-color:#4b537a;color:white}.top .export:hover:not(:disabled){background:#373863}.workspace{max-width:1510px;margin:auto;padding:38px clamp(16px,4.4vw,70px) 38px}.hero{margin-bottom:27px;display:flex;align-items:end;justify-content:space-between;gap:18px}.eyebrow{color:var(--brand);font-size:11px;text-transform:uppercase;letter-spacing:.16em;font-weight:750;margin-bottom:8px}.intro{margin-top:9px;color:var(--muted);font-size:15px}.privacy{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(315px,350px) minmax(0,1fr);gap:22px;align-items:start}.left{display:grid;gap:16px}.card{border:1px solid var(--line);background:white;border-radius:13px;box-shadow:var(--shadow);min-width:0}.pad{padding:20px}.cardhead{display:flex;align-items:center;gap:10px;margin-bottom:7px}.stage-icon{display:grid;place-items:center;background:var(--light);color:var(--brand);width:33px;height:33px;border-radius:8px;flex:none}.stage-icon svg{width:18px;height:18px}.desc{font-size:13px;color:var(--muted);margin-bottom:14px}.field-head{display:flex;justify-content:space-between;align-items:center;gap:6px;margin:12px 0 7px}.field-head label,.step-title-label{font-size:12px;font-weight:700}.example{font-size:12px}.field,textarea{color:var(--ink);border:1px solid #cbd5e4;background:#fbfcff;border-radius:8px;width:100%;padding:10px 11px}.field::placeholder,textarea::placeholder{color:#77859a}textarea{min-height:140px;resize:vertical;display:block}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.buttons .primary{flex:1}.notice{margin-top:10px;border-radius:7px;background:#fff5df;color:#764900;padding:8px 10px;font-size:12px;white-space:pre-line}.notice.good{background:#e9f7ef;color:var(--green)}[hidden]{display:none!important}.timeline{padding:15px 16px}.timeline header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:720}.count{color:var(--subtle);font-size:12px;font-weight:600}.slides{display:grid;gap:5px}.slide-btn{width:100%;justify-content:start;gap:10px;text-align:left;font-weight:600;padding:8px;border-color:transparent}.slide-btn[aria-current=true]{background:var(--light);color:#342a9f;border-color:#dbd6fc}.slide-num{display:grid;place-items:center;width:28px;height:25px;flex:none;background:#fff;border:1px solid var(--line);border-radius:5px;font-size:11px;color:var(--brand)}.slide-name{overflow-wrap:anywhere;flex:1}.tag{font-size:10px;font-weight:730;border-radius:20px;padding:3px 9px;color:#4b5380;background:#eceefa;white-space:nowrap}.tag.ok{color:var(--green);background:#e8f6ef}#previous-chart summary{cursor:pointer;font-weight:700}#previous-chart ul{margin:6px 0;padding-left:22px;font-size:12px}.tag.review{color:#624800;background:#fcf1d7}.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 19px;border-bottom:1px solid var(--line)}.preview-head h2{line-height:1.2;font-family:inherit;font-size:14px;font-weight:730;letter-spacing:0}.preview-head p{color:var(--subtle);font-size:11px;margin-top:3px}.canvas{background-color:#eef2fa;background-image:radial-gradient(#c9d3e5 1px,transparent 1px);background-size:15px 15px;padding:clamp(12px,2vw,25px);overflow:auto}.sheet{background:white;border:1px solid #dbe2ef;border-radius:4px;box-shadow:0 8px 22px #25366316;overflow:hidden;min-width:360px}.sheet-head{margin:0 5.1%;padding:3.9% 0 1.7%;border-bottom:1px solid #e6e9f3}.sheet-head .eyebrow{font-size:clamp(8px,.9vw,11px);margin:0 0 3px}.sheet-head h2{font-size:clamp(22px,3.1vw,36px);overflow-wrap:anywhere}.caption{font-size:clamp(10px,1.05vw,13px);color:var(--muted);margin-top:3px;white-space:pre-wrap;overflow-wrap:anywhere}.diagram{display:block;width:100%;height:auto;min-height:140px}.foot{border-top:1px solid #e6e9f3;margin:0 5.1%;padding:8px 0 10px;display:flex;align-items:center;justify-content:space-between;color:var(--subtle);font-size:10px}.legend{border-top:1px solid var(--line);padding:12px 17px;display:flex;gap:clamp(10px,1.8vw,22px);flex-wrap:wrap;align-items:center;font-size:11px;color:var(--muted)}.legend strong{color:var(--ink)}.legend span{display:inline-flex;align-items:center;gap:5px}.legend svg{width:19px;height:16px}.review-bar{padding:13px 17px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.review-bar span{font-size:12px;color:var(--muted)}details.help{margin-top:13px;color:var(--muted);font-size:12px}details.help summary{cursor:pointer;color:var(--brand);font-weight:650}details.help ul{padding-left:18px;margin-bottom:0}.editor{margin-top:14px;padding:16px}.editor header{display:flex;justify-content:space-between;align-items:center;gap:10px}.editor h2{font-size:22px}.editor h3{font-size:13px;margin:14px 0 5px}.rows{display:grid;gap:6px}.row{display:grid;grid-template-columns:minmax(80px,1fr) minmax(95px,1fr) 34px;gap:6px}.row.owners{grid-template-columns:minmax(60px,1fr) minmax(60px,1fr) minmax(60px,.5fr) 34px}.row input,.row select{min-width:0;padding:7px;font-size:12px}.row button{padding:0;font-size:18px}.editor .lower{margin-top:6px;font-size:12px}.project-meta{border-top:1px solid var(--line);padding-top:10px;margin-top:14px}.project-meta input{padding:7px 9px;font-size:12px}.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:800px){.layout{grid-template-columns:minmax(0,1fr)}.workspace{padding-top:25px}.hero{align-items:start}.privacy{display:none}.left{grid-template-columns:1fr 1fr;align-items:start}}@media(max-width:560px){.left{grid-template-columns:1fr}.sheet{min-width:300px}.hero{margin-bottom:18px}.top{min-height:58px}.top .export{font-size:11px}.workspace{padding-inline:11px}.pad{padding:16px}.intro{font-size:13px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="identity"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="5" rx="1"/><path d="M12 8v4M5 16v-4h14v4"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/></svg></span>Deal Structure</div>
+  <div class="top-actions"><button id="new-deck" class="export" hidden>New deck</button><button id="export" class="export" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></svg>Download PowerPoint</button></div>
+</header>
+<main class="workspace">
+  <header class="hero"><div><p class="eyebrow">M&amp;A tax workspace</p><h1>Transaction structure charts</h1><p class="intro">Map who owns what, then build your transaction deck step by step.</p></div><span class="privacy"><svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 4v3"/></svg>Deal data stays in this browser</span></header>
+  <div class="layout">
+    <aside class="left">
+      <section class="card pad" aria-labelledby="form-title">
+        <div class="cardhead"><span class="stage-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10l3 3v15H4V3zm10 0v4h3M8 11h8m-8 5h8"/></svg></span><h2 id="form-title">Starting structure</h2></div>
+        <p id="form-desc" class="desc">Describe the entities and their ownership before the first transaction.</p>
+        <div id="title-field" hidden><label for="step-title" class="step-title-label">Step title <span class="count">(optional)</span></label><input id="step-title" class="field" maxlength="90" placeholder="e.g. Acquisition of Partnership X"></div>
+        <div class="field-head"><label id="input-label" for="description">Ownership description</label><button id="example" class="quiet example">Use example</button></div>
+        <textarea id="description" maxlength="4000"></textarea>
+        <div class="buttons"><button id="generate" class="primary">Generate starting chart <span aria-hidden="true">→</span></button><button id="interpret" hidden>Interpret with AI</button></div>
+        <p id="message" class="notice" role="status" hidden></p><p id="ai-note" class="desc" hidden>AI sends this description and the preceding approved chart to OpenRouter.</p><details id="ai-evidence" class="help" hidden><summary>AI interpretation and source phrases</summary><ul id="ai-changes"></ul></details>
+        <details class="help"><summary>Supported wording</summary><ul id="syntax"></ul></details>
+        <div class="project-meta"><label class="step-title-label" for="project-name">Deck name</label><input id="project-name" class="field" maxlength="80" placeholder="Transaction structure"></div>
+      </section>
+      <section class="card timeline" aria-label="Slide sequence"><header><span>Slide sequence</span><span class="count" id="count"></span></header><div class="slides" id="slides"></div></section>
+    </aside>
+    <div>
+      <section class="card" aria-label="Slide preview">
+        <header class="preview-head"><div><h2>Slide preview</h2><p id="preview-meta">Widescreen · 16:9</p></div><span id="status" class="tag"></span></header>
+        <div class="canvas"><article class="sheet"><div class="sheet-head"><p id="sheet-kicker" class="eyebrow"></p><h2 id="sheet-title"></h2><p id="sheet-caption" class="caption" hidden></p></div><div id="diagram"></div><div class="foot"><span id="sheet-project">Transaction structure</span><span id="sheet-no">01</span></div></article></div>
+        <div class="legend" id="legend"><strong>Entity shapes</strong></div>
+        <div class="review-bar" id="review-bar"><span id="review-copy"></span><div class="buttons" style="margin:0"><button id="revise" hidden>Revise slide</button><button id="review-next" class="primary" hidden>Review this step</button><button id="edit" hidden>Edit chart</button><button id="approve" class="primary" hidden></button><button id="discard" class="quiet" hidden>Discard draft</button></div></div>
+      </section>
+      <details id="previous-chart" class="card editor" hidden><summary>Previously approved chart</summary><div id="previous-graph"></div></details>
+      <section id="editor" class="card editor" hidden><header><h2>Edit chart</h2><button id="close-editor" class="quiet">Cancel</button></header><h3>Entities</h3><p class="desc">Choose the shape that reflects each entity’s classification in this chart.</p><div id="entity-rows" class="rows"></div><button id="add-entity" class="quiet lower">+ Add entity</button><h3>Ownership</h3><p class="desc">Select an owner and the entity it owns. Leave the percentage blank if unknown.</p><div id="owner-rows" class="rows"></div><button id="add-owner" class="quiet lower">+ Add ownership</button><p id="editor-message" class="notice" role="status" hidden></p><div class="buttons"><button id="apply" class="primary">Apply chart edits</button></div></section>
+    </div>
+  </div>
+</main>
+<script>
+const startingExample = 'Partnership X is owned 50% by partner A and 50% by partner B. Unrelated corporation Y has a wholly owned LLC subsidiary Z.';
+const transactionExample = 'Z acquires 50% of X from A.';
+const types = {
+  corporation:{label:'Corporation',shape:'rect'},
+  partnership:{label:'Partnership',shape:'triangle'},
+  individual:{label:'Individual',shape:'ellipse'},
+  disregarded:{label:'Disregarded entity',shape:'ellipse'},
+  branch:{label:'Branch',shape:'ellipse'},
+  public_shareholders:{label:'Public shareholders',shape:'ellipse'},
+  hybrid_partnership:{label:'Hybrid partnership',shape:'rect',inside:'triangle'},
+  reverse_hybrid_corporation:{label:'Reverse hybrid corporation',shape:'rect',inside:'downTriangle'},
+  hybrid_branch:{label:'Hybrid branch or disregarded entity',shape:'rect',inside:'ellipse'},
+  trust:{label:'Trust',shape:'diamond'},
+  us_parent:{label:'U.S. parent corporation',shape:'rect',tag:'USP'},
+  llc_corporation:{label:'LLC taxed as a corporation',shape:'rect'},
+  llc_partnership:{label:'LLC taxed as a partnership',shape:'triangle'},
+  llc:{label:'LLC (classification unspecified)',shape:null},
+  other:{label:'Unspecified',shape:null}
+};
+const llcTaxTypes = {
+  'llc taxed as a corporation':'llc_corporation',
+  'llc taxed as an s corporation':'llc_corporation',
+  'llc taxed as a c corporation':'llc_corporation',
+  'llc taxed as a partnership':'llc_partnership'
+};
+const llcKinds = ['llc','llc_corporation','llc_partnership','disregarded'];
+const taxClass = text => /partnership$/i.test(text) ? 'llc_partnership' : 'llc_corporation';
+const knownLlc = type => llcKinds.includes(type);
+const typeMap = {
+  ...llcTaxTypes,
+  'hybrid branch or disregarded entity':'hybrid_branch',
+  'hybrid disregarded entity':'hybrid_branch',
+  'hybrid branch':'hybrid_branch',
+  'hybrid partnership':'hybrid_partnership',
+  'reverse hybrid corporation':'reverse_hybrid_corporation',
+  'reverse hybrid':'reverse_hybrid_corporation',
+  'us parent corporation':'us_parent',
+  'us parent':'us_parent',
+  usp:'us_parent',
+  'public shareholders':'public_shareholders',
+  'public stockholders':'public_shareholders',
+  trust:'trust',
+  branch:'branch',
+  'disregarded entity':'disregarded','disregarded llc':'disregarded',dreg:'disregarded',
+  individual:'individual',person:'individual',partnership:'partnership','limited partnership':'partnership',
+  corporation:'corporation',corp:'corporation','s corporation':'corporation','c corporation':'corporation',
+  llc:'llc','limited liability company':'llc',company:'other','unclassified entity':'other',entity:'other',lp:'partnership',llp:'partnership'
+};
+const typeWords = Object.keys(typeMap).sort((a,b)=>b.length-a.length).join('|');
+const percent = '(\\d+(?:\\.\\d+)?)\\s*%';
+const clone = value => JSON.parse(JSON.stringify(value));
+const empty = () => ({entities:[], edges:[]});
+const trim = value => value.trim().replace(/\s+/g,' ').replace(/^[“"‘]+|[”"’]+$/g,'').trim();
+const displayPercent = value => value === null ? '' : String(Number(value.toFixed(8))) + '%';
+const escape = value => String(value).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
+function entityRef(raw, forced) {
+  let name = trim(raw).replace(/\bU\.S\.\s+(?=parent\b)/gi,'US ').replace(/^(?:(?:the|an?|unrelated|newly formed|new)\s+)+/i,'').replace(/^(?:partner|shareholder|member|owner)\s+/i,'');
+  const prefix = name.match(new RegExp('^(' + typeWords + ')\\s+(?:(?:named|called)\\s+)?(.+)$','i'));
+  const classification = name.match(new RegExp('^(.+?)\\s*\\((' + typeWords + ')\\)$','i'));
+  let type = forced ?? 'other';
+  if (/^public (?:shareholders|stockholders)$/i.test(name)) type='public_shareholders';
+  if (prefix) {
+    name = prefix[2];
+    const prefixType=typeMap[prefix[1].toLowerCase()];
+    if (prefixType!=='llc' || !knownLlc(type)) type=prefixType;
+  }
+  if (classification) { name = classification[1]; type = typeMap[classification[2].toLowerCase()]; }
+  if (type === 'other') {
+    if (/\b(?:inc|corp|corporation)\.?$/i.test(name)) type = 'corporation';
+    if (/\bllc\.?$/i.test(name)) type = 'llc';
+    if (/\bll?p\.?$/i.test(name)) type = 'partnership';
+  }
+  const inlineTax=name.match(/^(.+?)\s*(?:\(\s*|\s+)(?:taxed as|classified as|treated as) (?:an? )?((?:[cs] )?corporation|partnership)\s*\)?$/i);
+  if (inlineTax && (knownLlc(type) || /\bllc\.?$/i.test(inlineTax[1]))) {
+    name=inlineTax[1];
+    type=taxClass(inlineTax[2]);
+  }
+  name = trim(name).replace(/^(?:subsidiary)\s+/i,'');
+  if (!name || name.length > 100 || /[%;<>]/.test(name) || /\b(?:and|owns|from|sells|buys|acquires|contributes|merges|transfers|in exchange for|in consideration for|through|indirectly)\b/i.test(name)) throw Error('Check this entity name: ' + raw);
+  return {name,type};
+}
+const nameKey = name => name.toLowerCase().replace(/\.$/,'');
+function resolve(graph, raw, {existing=false, type} = {}) {
+  const ref = entityRef(raw, type);
+  const normalized = nameKey(ref.name);
+  const same = graph.entities.find(entity => nameKey(entity.name) === normalized);
+  if (same) {
+    if (ref.type !== 'other' && same.type !== ref.type) {
+      if (same.type === 'other' || (same.type==='corporation' && ref.type==='us_parent') || (same.type==='llc' && ref.type!=='llc' && knownLlc(ref.type))) same.type = ref.type;
+      else if (ref.type !== 'llc' && !(ref.type==='corporation' && same.type==='us_parent')) throw Error(same.name + ' has conflicting entity classifications. Use the chart editor to change it.');
+    }
+    return same.id;
+  }
+  if (existing) throw Error('“' + ref.name + '” is not on the prior chart. Check its name or add it in the editor.');
+  if (graph.entities.length >= 36) throw Error('Use up to 36 entities per chart.');
+  const id = Math.max(0,...graph.entities.map(entity => entity.id)) + 1;
+  graph.entities.push({...ref,id});
+  return id;
+}
+function setEdge(graph, owner, target, value) {
+  if (owner === target) throw Error('An entity cannot own itself on this chart.');
+  const pct = value === null ? null : Number(value);
+  if (pct !== null && (!Number.isFinite(pct) || pct < 0 || pct > 100)) throw Error('Enter a percentage between 0 and 100.');
+  const i = graph.edges.findIndex(edge => edge.owner === owner && edge.target === target);
+  if (pct === 0) { if (i >= 0) graph.edges.splice(i,1); return; }
+  const edge = {owner,target,pct};
+  if (i < 0) graph.edges.push(edge);
+  else graph.edges[i] = edge;
+}
+function transfer(graph, targetName, sellerName, buyerName, rawPct, ofSeller=false) {
+  const target = resolve(graph,targetName,{existing:true});
+  const owner = resolve(graph,sellerName,{existing:true});
+  const buyer = resolve(graph,buyerName);
+  transferById(graph,target,owner,buyer,rawPct,ofSeller);
+}
+function transferById(graph,target,owner,buyer,rawPct,ofSeller) {
+  if (owner === buyer) throw Error('Choose different sellers and buyers.');
+  const source = graph.edges.find(edge => edge.owner === owner && edge.target === target);
+  const prior = graph.edges.find(edge => edge.owner === buyer && edge.target === target);
+  if (!source) throw Error('The seller has no ownership line for this entity.');
+  if (rawPct === 'all' && source.pct === null && !prior) {
+    graph.edges = graph.edges.filter(edge => edge !== source);
+    setEdge(graph,buyer,target,null);
+    return;
+  }
+  if (source.pct === null || prior?.pct === null) throw Error('Enter the existing percentages in the chart editor before applying a percentage transfer.');
+  if (rawPct !== 'all' && !(Number(rawPct)>0 && Number(rawPct)<=100)) throw Error('The transfer percentage must be greater than zero and at most 100%.');
+  const amount = rawPct === 'all' ? source.pct : Number(rawPct) * (ofSeller ? source.pct/100 : 1);
+  if (!(amount > 0) || amount - source.pct > 1e-8) throw Error('The transferred percentage exceeds the seller’s interest or is zero.');
+  setEdge(graph,owner,target,Math.max(0,Number((source.pct-amount).toFixed(8))));
+  setEdge(graph,buyer,target,Number(((prior?.pct ?? 0)+amount).toFixed(8)));
+}
+function clauses(description) {
+  description=description.replace(/\bU\.S\.\s+(?=parent\b)/gi,'US ');
+  const abbreviations = /\b(?:Inc|Corp|Co|Ltd|L\.L\.C|L\.P)\.(?=\s+[a-z0-9])/g;
+  return description.replace(abbreviations,part=>part.replaceAll('.','\uE000'))
+    .split(/\s*[;\n]+\s*|[.?!](?=\s|$)|,\s+(?:and\s+)?then\s+/i)
+    .map(line=>trim(line.replaceAll('\uE000','.').replace(/^(?:[-•]|(?:step\s+)?\d+[):])\s*/i,''))).filter(Boolean);
+}
+const equity = '(?:(?:membership|partnership|equity|ownership|limited partnership) )?(?:interests?|stakes?|shares?|units?|stock)';
+const buyerVerb = '(?:acquires|purchases|buys|takes)';
+const sellerVerb = '(?:sells|transfers|contributes|assigns|distributes|conveys|exchanges)';
+const moveAll = '(?:(?:all(?: of)? (?:its|their)|its|their|the) (?:entire )?)';
+const wordPercents = {one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100};
+const percentWords = /(?<![\w-])((?:(?:one )?hundred)|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[ -](?:one|two|three|four|five|six|seven|eight|nine))?|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:percent|per cent)\b/gi;
+function normalizeClause(clause) {
+  return clause
+    .replace(/^(?:step\s+\d+\s*[:.)-]\s*|(?:first|next|then|after closing|at closing|post[- ]closing|following the transaction)[,:]\s*)/i,'')
+    .replace(/(\d+(?:\.\d+)?)\s*(?:percent|per cent)\b/gi,'$1%')
+    .replace(/\blimited liability company ((?:taxed|classified|treated) as)/gi,'LLC $1')
+    .replace(/\bLLC (?:classified|treated) as\b/gi,'LLC taxed as')
+    .replace(percentWords,(_,words)=>words.toLowerCase().split(/[ -]+/).reduce((n,word)=>n+wordPercents[word],0)-(words.toLowerCase()==='one hundred'?1:0)+'%')
+    .replace(/\s+(?:for|in exchange for)\s+cash(?: consideration)?$/i,'')
+    .replace(/^(.+?)\s+will\s+(acquire|purchase|buy|sell|transfer|contribute|assign|distribute|form|create|own|hold|merge|dissolve|liquidate|convert|rename)\b/i,(_,who,verb)=>who+' '+verb+'s');
+}
+function renameEntity(graph, former, replacement) {
+  const id=resolve(graph,former,{existing:true});
+  const ref=entityRef(replacement);
+  const existing=graph.entities.find(entity=>entity.id!==id && nameKey(entity.name)===nameKey(ref.name));
+  if (existing) throw Error('An entity named “'+ref.name+'” already exists.');
+  const entity=graph.entities.find(item=>item.id===id);
+  entity.name=ref.name;
+}
+function removeEntity(graph, raw, action) {
+  const target=resolve(graph,raw,{existing:true});
+  if (graph.edges.some(edge=>edge.owner===target)) throw Error('Show who receives each interest held by this entity before '+action+'.');
+  graph.entities=graph.entities.filter(entity=>entity.id!==target);
+  graph.edges=graph.edges.filter(edge=>edge.target!==target);
+}
+function replaceOwnership(graph, targetName, list) {
+  const target=resolve(graph,targetName);
+  const parts=list.split(/\s*,\s*(?:and\s+)?|\s+and\s+/i);
+  const entries=parts.map(part=>{
+    const after=part.match(new RegExp('^(?:by )?(.+?)\\s*(?:at\\s+|:\\s*|\\(\\s*)?'+percent+'\\s*\\)?$','i'));
+    const before=part.match(new RegExp('^'+percent+'(?:\\s+(?:to|by))?\\s+(.+)$','i'));
+    if (after) return [resolve(graph,after[1]),Number(after[2])];
+    if (before) return [resolve(graph,before[2]),Number(before[1])];
+    throw Error('Give each owner with a percentage, for example “A 70%, B 30%”.');
+  });
+  const ids=new Set(entries.map(([id])=>id));
+  if (ids.size!==entries.length) throw Error('List each co-owner once.');
+  if (entries.some(([,pct])=>pct<0 || pct>100) || Math.abs(entries.reduce((sum,[,pct])=>sum+pct,0)-100)>1e-7) {
+    throw Error('A complete ownership restatement must total 100%. Give each ownership line separately if the chart is partial.');
+  }
+  graph.edges=graph.edges.filter(edge=>edge.target!==target);
+  entries.forEach(([id,pct])=>setEdge(graph,id,target,pct));
+}
+function parseAdditionalStep(graph, clause, match) {
+  let m;
+  if (/^(?:note\s*:\s*\S.*|ownership (?:is unchanged|remains unchanged)|no (?:equity |ownership )changes)$/i.test(clause)) return true;
+  if ((m=match('(?:rename (.+?) to (.+)|(.+?) (?:is renamed|changes its name to|renames to) (.+))'))) {
+    renameEntity(graph,m[1]??m[3],m[2]??m[4]); return true;
+  }
+  if ((m=match('(.+?) (?:dissolves|liquidates|ceases to exist|is dissolved|is liquidated)'))) {
+    removeEntity(graph,m[1],'removing it'); return true;
+  }
+  if ((m=match('(.+?) merges into (.+?)[, ]+without changing (?:the )?(?:survivor[’\\x27]s ownership|ownership of the survivor)'))) {
+    const source=resolve(graph,m[1],{existing:true});
+    const survivor=resolve(graph,m[2],{existing:true});
+    if (source===survivor) throw Error('The disappearing entity and survivor must be different.');
+    if (graph.edges.some(edge=>edge.owner===source)) throw Error('Specify the treatment of all interests held by the disappearing entity, including any interest in the survivor.');
+    removeEntity(graph,m[1],'the merger'); return true;
+  }
+  if ((m=match('(.+?) (?:merges into|merges with|is merged into|is acquired by) (.+)'))) {
+    throw Error('State the post-closing ownership explicitly. For a merger with unchanged survivor ownership, use “X merges into Y without changing the survivor’s ownership.”');
+  }
+  if ((m=match('(.+?) '+sellerVerb+' '+percent+' of (?:its|their) '+equity+' in (.+?) to (.+)'))) {
+    transfer(graph,m[3],m[1],m[4],m[2],true); return true;
+  }
+  if ((m=match('(.+?) '+buyerVerb+' '+percent+' of (.+?)[’\\x27]s '+equity+' in (.+)'))) {
+    transfer(graph,m[4],m[3],m[1],m[2],true); return true;
+  }
+  if ((m=match('(?:a |an )?'+percent+' '+equity+' in (.+?) is (?:sold|transferred|assigned|contributed|distributed) (?:from|by) (.+?) to (.+)'))) {
+    transfer(graph,m[2],m[3],m[4],m[1]); return true;
+  }
+  if ((m=match('(.+?) '+buyerVerb+' (?:a |an )?'+percent+'(?: '+equity+')? (?:of|in) (.+?) from (.+)'))) {
+    transfer(graph,m[3],m[4],m[1],m[2]); return true;
+  }
+  if ((m=match('(.+?) '+sellerVerb+' (?:a |an )?'+percent+'(?: '+equity+')? (?:of|in) (.+?) to (.+)'))) {
+    transfer(graph,m[3],m[1],m[4],m[2]); return true;
+  }
+  if ((m=match('(.+?) and (.+?) '+sellerVerb+' '+moveAll+equity+' (?:in|of) (.+?) to (.+)'))) {
+    transfer(graph,m[3],m[1],m[4],'all');
+    transfer(graph,m[3],m[2],m[4],'all'); return true;
+  }
+  if ((m=match('(.+?) '+sellerVerb+' '+moveAll+equity+' (?:in|of) (.+?) to (.+)'))) {
+    transfer(graph,m[2],m[1],m[3],'all'); return true;
+  }
+  if ((m=match('(.+?) '+buyerVerb+' (?:all of )?(.+?)[’\\x27]s (?:entire )?'+equity+' (?:in|of) (.+)'))) {
+    transfer(graph,m[3],m[2],m[1],'all'); return true;
+  }
+  if ((m=match('(.+?) '+buyerVerb+' (?:all(?: of)? (?:the )?(?:outstanding )?'+equity+' (?:of|in)|100% of) (.+?)(?: from all (?:existing |current )?(?:owners|partners|shareholders|members))?'))) {
+    resolve(graph,m[2],{existing:true});
+    replaceOwnership(graph,m[2],m[1]+' 100%'); return true;
+  }
+  if ((m=match('(.+?) (?:forms|organizes|establishes|creates|incorporates|sets up) (?:a |an )?(wholly[ -]owned )?(.+?)(?: (?:as its wholly[ -]owned subsidiary|as a wholly[ -]owned subsidiary|and owns 100% of it))?'))) {
+    const owner=resolve(graph,m[1]);
+    const ref=entityRef(m[3],/\bincorporates\b/i.test(clause)?'corporation':undefined);
+    if (graph.entities.some(entity=>nameKey(entity.name)===nameKey(ref.name))) throw Error('The entity being formed is already on the chart. Use an ownership or classification statement to update it.');
+    const target=resolve(graph,m[3],{type:ref.type});
+    if (m[2] || /(?:wholly[ -]owned subsidiary|owns 100% of it)$/i.test(clause)) setEdge(graph,owner,target,100);
+    return true;
+  }
+  if ((m=match('(.+?) (?:no longer owns|ceases to own|exits) (.+)'))) {
+    setEdge(graph,resolve(graph,m[1],{existing:true}),resolve(graph,m[2],{existing:true}),0); return true;
+  }
+  if ((m=match('(.+?) (?:converts (?:to|into)|is classified as|elects to be treated as|is treated as|becomes) (?:an? )?(' + typeWords + ')(?: for (?:U\\.?S\\.? )?(?:federal )?(?:income )?tax purposes)?'))) {
+    const id=resolve(graph,m[1],{existing:true});
+    graph.entities.find(entity=>entity.id===id).type=typeMap[m[2].toLowerCase()]; return true;
+  }
+  return false;
+}
+function parseClause(graph, wording, isStep) {
+  const clause=normalizeClause(wording);
+  if (!/^note\s*:/i.test(clause) && /\b(?:voting (?:rights|power|interest|shares|stock)|economic (?:interest|rights|ownership)|capital (?:interest|account)|profits? interest|class [a-z0-9]+ (?:shares|stock|units|interests)|fully diluted)\b/i.test(clause)) {
+    throw Error('This chart has a single ownership percentage per owner. Choose the ownership measure to diagram and put other measures in a “Note:” sentence.');
+  }
+  const match = pattern => clause.match(new RegExp('^' + pattern + '$','i'));
+  let m;
+  if ((m=match('(.+?) (?:is (?:taxed|treated|classified) as|elects to be (?:taxed|treated|classified) as|elects) (?:an? )?((?:[CS] )?corporation|partnership)(?: (?:tax status|status|classification))?(?: for (?:U\\.?S\\.? )?(?:federal )?(?:income )?tax purposes)?'))) {
+    const ref=entityRef(m[1]);
+    const existing=graph.entities.find(entity=>nameKey(entity.name)===nameKey(ref.name));
+    if (knownLlc(ref.type) || (existing && knownLlc(existing.type))) {
+      const id=existing?.id ?? resolve(graph,m[1]);
+      graph.entities.find(entity=>entity.id===id).type=taxClass(m[2]); return;
+    }
+  }
+  if (isStep && parseAdditionalStep(graph,clause,match)) return;
+  if ((m=match('(?:(?:post[- ](?:close|closing|transaction) )?ownership|cap table) (?:of|for) (.+?): (.+)'))) {
+    replaceOwnership(graph,m[1],m[2]); return;
+  }
+  if ((m=match('(.+?) (?:is|will be) (?:a |the )?(?:wholly[ -]owned|100%[ -]owned) subsidiary of (.+)'))) {
+    replaceOwnership(graph,m[1],m[2]+' 100%'); return;
+  }
+  if ((m=match('(.+?) (?:is|will be) owned (?:equally|50/50) by (.+?) and (.+)'))) {
+    replaceOwnership(graph,m[1],m[2]+' 50%, '+m[3]+' 50%'); return;
+  }
+  if ((m=match('(.+?) and (.+?) each (?:owns?|holds?) '+percent+' (?:of|in) (.+)'))) {
+    const target=resolve(graph,m[4]);
+    setEdge(graph,resolve(graph,m[1]),target,m[3]);
+    setEdge(graph,resolve(graph,m[2]),target,m[3]); return;
+  }
+  if ((m=match('(.+?) (?:is|becomes) the sole (?:shareholder|partner|member|owner) of (.+)'))) {
+    replaceOwnership(graph,m[2],m[1]+' 100%'); return;
+  }
+  if ((m=match('(.+?) (?:is|are|will be|is now|becomes) (?:wholly|100%) owned by (.+)'))) {
+    const target = resolve(graph,m[1]); const owner = resolve(graph,m[2]);
+    graph.edges = graph.edges.filter(edge => edge.target !== target);
+    setEdge(graph,owner,target,100); return;
+  }
+  if ((m=match('(.+?) (?:is|are|will be) owned (.+)'))) {
+    const target = resolve(graph,m[1]);
+    const parts = m[2].split(/\s*,\s*(?:and\s+)?|\s+and\s+/i);
+    const ownership = parts.map(part => {
+      const first = part.match(new RegExp('^'+percent+' (?:owned )?by (.+)$','i'));
+      const last = part.match(new RegExp('^by (.+?) (?:\\(|as to |at )?'+percent+'\\)?$','i'));
+      const unknown = part.match(/^by (.+)$/i);
+      if (first) return [first[2],first[1]];
+      if (last) return [last[1],last[2]];
+      if (unknown) return [unknown[1],null];
+      throw Error('Give each owner with its percentage, such as “50% by A”.');
+    });
+    if (isStep && ownership.every(([,pct]) => pct !== null) && Math.abs(ownership.reduce((sum,[,pct])=>sum+Number(pct),0)-100)<1e-8) {
+      const ids = ownership.map(([name])=>resolve(graph,name));
+      if (new Set(ids).size!==ids.length) throw Error('List each co-owner once.');
+      graph.edges = graph.edges.filter(edge=>edge.target!==target);
+    }
+    ownership.forEach(([name,pct]) => setEdge(graph,resolve(graph,name),target,pct));
+    return;
+  }
+  if ((m=match('(.+?) (?:has|owns) (?:a |an )?wholly[ -]owned (.+)'))) {
+    const owner = resolve(graph,m[1]);
+    const target = resolve(graph,m[2]);
+    graph.edges = graph.edges.filter(edge => edge.target !== target);
+    setEdge(graph,owner,target,100); return;
+  }
+  if ((m=match('(.+?) (?:owns?|holds?|now owns?|will own|retains?) (?:an? )?'+percent+'(?: '+equity+')?(?: of| in)? (.+)'))) {
+    const owner = resolve(graph,m[1]); const target = resolve(graph,m[3]);
+    if (Number(m[2]) === 100) graph.edges = graph.edges.filter(edge => edge.target !== target);
+    setEdge(graph,owner,target,m[2]); return;
+  }
+  if ((m=match('(.+?) (?:owns?|holds?) all (?:of )?(?:the (?:interests|shares) in )?(.+)'))) {
+    const owner = resolve(graph,m[1]); const target = resolve(graph,m[2]);
+    graph.edges = graph.edges.filter(edge => edge.target !== target);
+    setEdge(graph,owner,target,100); return;
+  }
+  if ((m=match('(.+?) (?:is|are) (?:an? )?(' + typeWords + ')'))) {
+    const type=typeMap[m[2].toLowerCase()];
+    if (type==='llc_corporation' || type==='llc_partnership') {
+      const ref=entityRef(m[1]);
+      const existing=graph.entities.find(entity=>nameKey(entity.name)===nameKey(ref.name));
+      if (existing && knownLlc(existing.type)) { existing.type=type; return; }
+    }
+    resolve(graph,m[1],{type}); return;
+  }
+  if (!isStep && (m=match('(?:there is |add )?(?:an? )?(' + typeWords + ') (.{1,65})')) && m[2].split(/\s+/).length<=4 && !/\b(?:is|has|with|was|that)\b/i.test(m[2])) {
+    resolve(graph,m[1]+' '+m[2]); return;
+  }
+  if (!isStep && (m=match('(.+?) (?:owns?|holds?) (.+)'))) {
+    if (/\b(?:through|indirectly|jointly|with|via|interest in|shares of)\b/i.test(clause)) throw Error('Describe each direct ownership line separately.');
+    setEdge(graph,resolve(graph,m[1]),resolve(graph,m[2]),null); return;
+  }
+  throw Error('Try one ownership action per sentence, state the post-closing ownership, or use Edit chart.');
+}
+function validate(graph) {
+  const totals = new Map();
+  graph.edges.forEach(edge => totals.set(edge.target,(totals.get(edge.target) ?? 0)+(edge.pct ?? 0)));
+  const excessive = graph.entities.filter(entity => totals.get(entity.id)>100.000001);
+  if (excessive.length) throw Error('Ownership exceeds 100% for ' + excessive.map(entity=>entity.name).join(', ') + '.');
+  const order = [];
+  const remaining = new Set(graph.entities.map(entity=>entity.id));
+  while (remaining.size) {
+    const next = [...remaining].filter(id=>!graph.edges.some(edge=>edge.target===id&&remaining.has(edge.owner)));
+    if (!next.length) throw Error('The ownership lines contain a cycle. Review the direction of the lines.');
+    next.forEach(id=>remaining.delete(id)); order.push(next);
+  }
+  if (graph.edges.length > 96) throw Error('Use up to 96 ownership lines per chart.');
+  return order;
+}
+function parse(description, prior) {
+  let graph = prior ? clone(prior) : empty();
+  const issues = [];
+  for (const clause of clauses(description)) {
+    const attempt = clone(graph);
+    try { parseClause(attempt,clause,Boolean(prior)); graph = attempt; }
+    catch (error) { issues.push('“'+clause+'” — '+error.message); }
+  }
+  return {graph,issues};
+}
+function sourceTokens(text) {
+  const pattern=/\p{Nd}+(?:(?:\.|,)\p{Nd}+)+|[\p{L}\p{M}\p{N}]+(?:['’‘ʼ][\p{L}\p{M}\p{N}]+)*|[%％$£€+\/\u2212\u2010-\u2015-]/gu;
+  return Array.from(text.matchAll(pattern),match=>({
+    start:match.index,
+    end:match.index+match[0].length,
+    key:match[0].normalize('NFKC').replace(/[’‘ʼ]/g,"'").replace(/[\u2212\u2010-\u2015]/g,'-').toLowerCase()
+  }));
+}
+function sourcePhrase(description,source,quote) {
+  if (typeof quote!=='string' || quote.length>description.length+20) return '';
+  const words=sourceTokens(quote);
+  if (!words.some(word=>/[\p{L}\p{N}]/u.test(word.key))) return '';
+  const at=source.findIndex((_,i)=>words.every((word,j)=>word.key===source[i+j]?.key));
+  return at<0?'':description.slice(source[at].start,source[at+words.length-1].end);
+}
+function aiDraft(description, prior, result) {
+  if (!result || !Array.isArray(result.operations) || result.operations.length>132 ||
+      !Array.isArray(result.questions) || result.questions.length>20 ||
+      !result.questions.every(question=>typeof question==='string' && question.trim() && question.length<=400) ||
+      typeof result.no_change!=='boolean' || (result.no_change && result.operations.length)) {
+    throw Error('OpenRouter returned an invalid interpretation. Try again or use the chart editor.');
+  }
+  const issues=[...result.questions];
+  let graph=prior?clone(prior):empty();
+  if (issues.length) return {graph,issues,evidence:[]};
+  if (!result.operations.length && !result.no_change) throw Error('The model did not propose an ownership change or explain why.');
+  const evidence=[];
+  const source=sourceTokens(description);
+  const citations=result.operations.map(op=>sourcePhrase(description,source,op?.evidence));
+  if (citations.some(phrase=>!phrase)) {
+    const names=[...new Set(result.operations.filter((_,i)=>!citations[i]).map(op=>op?.entity).filter(name=>typeof name==='string' && name.length<=100))];
+    return {graph,issues:[
+      'AI could not match the supporting wording for '+(names.length?names.join(', '):'one or more changes')+
+      '. Try Interpret with AI again, or open Edit chart to make the changes yourself.'
+    ],evidence};
+  }
+  const find=name=>{
+    if(typeof name!=='string' || !name.trim()) throw Error('An operation is missing an entity name.');
+    const match=graph.entities.find(entity=>nameKey(entity.name)===nameKey(trim(name)));
+    if(!match) throw Error('The model referenced an entity outside the chart: '+name);
+    return match;
+  };
+  const validName=name=>{
+    if(typeof name!=='string' || !name.trim() || name.length>100 || /[\r\n]/.test(name)) throw Error('The model returned an invalid entity name.');
+    return trim(name);
+  };
+  const validPct=pct=>typeof pct==='number' && Number.isFinite(pct) && pct>=0 && pct<=100;
+  const validType=type=>typeof type==='string' && Object.hasOwn(types,type);
+  const seenChanges=new Set();
+  const resets=new Set();
+  for (const [index,op] of result.operations.entries()) {
+    const id=JSON.stringify([op.kind,op.entity,op.owner,op.recipient,op.name,op.classification,op.percentage,op.basis]);
+    if (seenChanges.has(id)) throw Error('The model repeated a change. Split the description or adjust the chart manually.');
+    seenChanges.add(id);
+    if (op.kind==='create_entity') {
+      const name=validName(op.entity);
+      if (!validType(op.classification) || graph.entities.length>=36 ||
+          graph.entities.some(entity=>nameKey(entity.name)===nameKey(name))) throw Error('The model tried to add an invalid or duplicate entity.');
+      graph.entities.push({id:Math.max(0,...graph.entities.map(entity=>entity.id))+1,name,type:op.classification});
+    } else {
+      const entity=find(op.entity);
+      switch (op.kind) {
+        case 'rename_entity': {
+          const name=validName(op.name);
+          if (graph.entities.some(other=>other!==entity && nameKey(other.name)===nameKey(name))) throw Error('The new name already exists.');
+          entity.name=name;
+          break;
+        }
+        case 'set_classification':
+          if (!validType(op.classification)) throw Error('The model returned an invalid entity classification.');
+          entity.type=op.classification;
+          break;
+        case 'set_ownership':
+          if (op.percentage!==null && !validPct(op.percentage)) throw Error('The model returned an invalid ownership percentage.');
+          setEdge(graph,find(op.owner).id,entity.id,op.percentage);
+          break;
+        case 'clear_owners':
+          resets.add(entity.id);
+          graph.edges=graph.edges.filter(edge=>edge.target!==entity.id);
+          break;
+        case 'remove_entity':
+          if (graph.edges.some(edge=>edge.owner===entity.id)) throw Error('Clarify who receives the interests held by '+entity.name+'.');
+          graph.edges=graph.edges.filter(edge=>edge.target!==entity.id);
+          graph.entities=graph.entities.filter(other=>other!==entity);
+          resets.delete(entity.id);
+          break;
+        case 'transfer':
+          if (!['entity','seller','all'].includes(op.basis) ||
+              (op.basis==='all'?op.percentage!==null:!validPct(op.percentage))) throw Error('The model did not specify a valid transfer basis and percentage.');
+          transferById(graph,entity.id,find(op.owner).id,find(op.recipient).id,op.basis==='all'?'all':op.percentage,op.basis==='seller');
+          break;
+        default:
+          throw Error('The model proposed an unsupported change.');
+      }
+    }
+    evidence.push(op.kind.replaceAll('_',' ')+' · '+op.entity+(op.owner?' · '+op.owner:'')+(op.recipient?' → '+op.recipient:'')+' · “'+citations[index]+'”');
+  }
+  for(const id of resets) {
+    const edges=graph.edges.filter(edge=>edge.target===id);
+    if(edges.some(edge=>edge.pct===null) || Math.abs(edges.reduce((sum,edge)=>sum+edge.pct,0)-100)>1e-7) {
+      throw Error('A complete ownership replacement must account for 100%. Enter the final ownership or use Edit chart.');
+    }
+  }
+  const invalid=getValidation(graph);
+  if (invalid) throw Error(invalid);
+  return {graph,issues,evidence};
+}
+function componentLayout(graph) {
+  let order;
+  try { order = validate(graph); }
+  catch { return null; }
+  const width=920, height=375;
+  const seen = new Set();
+  const components = [];
+  graph.entities.forEach(entity => {
+    if (seen.has(entity.id)) return;
+    const group = new Set([entity.id]);
+    for (const id of group) {
+      graph.edges.forEach(edge=>{
+        if (edge.owner===id) group.add(edge.target);
+        if (edge.target===id) group.add(edge.owner);
+      });
+    }
+    group.forEach(id=>seen.add(id));
+    const ranks = order.map(row=>row.filter(id=>group.has(id))).filter(row=>row.length);
+    components.push({ranks, columns:Math.max(...ranks.map(row=>row.length))});
+  });
+  const bands = [];
+  for (const component of components) {
+    let band = bands.at(-1);
+    if (!band || band.columns+component.columns>6) { band={columns:0,rows:0,components:[]}; bands.push(band); }
+    band.columns+=component.columns;
+    band.rows=Math.max(band.rows,component.ranks.length);
+    band.components.push(component);
+  }
+  const naturalWidth = Math.max(width,...bands.map(band=>band.columns*138+(band.components.length-1)*40+85));
+  const naturalHeight = Math.max(height,bands.reduce((total,band)=>total+band.rows*112+35,0)+34);
+  const nodes=new Map();
+  let bandY = naturalHeight===height ? (height-(bands[0]?.rows ?? 0)*112)/2 : 28;
+  bands.forEach(band=>{
+    const gap=42;
+    const slot=Math.min(167,(naturalWidth-80-(band.components.length-1)*gap)/band.columns);
+    const bandWidth=band.columns*slot+(band.components.length-1)*gap;
+    let offset = (naturalWidth-bandWidth)/2;
+    band.components.forEach(comp=>{
+      const mid = offset + comp.columns*slot/2;
+      comp.ranks.forEach((row,rank)=>row.forEach((id,index)=>{
+        nodes.set(id,{x:mid+(index-(row.length-1)/2)*slot,y:bandY+rank*112+55,w:Math.min(124,slot-12),h:59});
+      }));
+      offset+=comp.columns*slot+gap;
+    });
+    bandY+=band.rows*112+35;
+  });
+  const edges = graph.edges.map(edge=>{
+    const a=nodes.get(edge.owner),b=nodes.get(edge.target);
+    const outgoing=graph.edges.filter(line=>line.owner===edge.owner).sort((x,y)=>nodes.get(x.target).x-nodes.get(y.target).x);
+    const incoming=graph.edges.filter(line=>line.target===edge.target).sort((x,y)=>nodes.get(x.owner).x-nodes.get(y.owner).x);
+    const p1={x:a.x+(outgoing.indexOf(edge)-(outgoing.length-1)/2)*Math.min(17,70/outgoing.length),y:a.y+a.h/2};
+    const p2={x:b.x+(incoming.indexOf(edge)-(incoming.length-1)/2)*Math.min(17,42/incoming.length),y:b.y-b.h/2-3};
+    const target=graph.entities.find(entity=>entity.id===edge.target);
+    const targetShape=types[target.type].shape;
+    const fraction=Math.abs(p2.x-b.x)/(b.w/2);
+    if (targetShape==='triangle') p2.y+=fraction*b.h;
+    if (targetShape==='diamond') p2.y+=fraction*b.h/2;
+    if (targetShape==='ellipse') p2.y+=(1-Math.sqrt(1-fraction*fraction))*b.h/2;
+    const lift = (p2.y-p1.y)*.55;
+    const bendY = p2.y-Math.min(27,lift);
+    let points, label;
+    if (p2.y-p1.y>95 && Math.abs(p2.x-p1.x)<75) {
+      const channel=Math.max(a.x+a.w/2,b.x+b.w/2)+18+outgoing.indexOf(edge)*8;
+      points=[p1,{x:p1.x,y:p1.y+17},{x:channel,y:p1.y+17},{x:channel,y:bendY},{x:p2.x,y:bendY},p2];
+      label={x:channel,y:(p1.y+17+bendY)/2};
+    } else {
+      points=[p1,{x:p1.x,y:bendY},{x:p2.x,y:bendY},p2];
+      label={x:(p1.x+p2.x)/2+(Math.abs(p1.x-p2.x)<29?26:0),y:bendY-3};
+    }
+    return {...edge,points,label};
+  });
+  return {nodes,edges,width:naturalWidth,height:naturalHeight};
+}
+function nameLines(name, max=18) {
+  const words = name.split(/\s+/);
+  const lines=[];
+  let buffer='';
+  words.forEach(word=>{
+    if (buffer && buffer.length+word.length+1>max) { lines.push(buffer); buffer=''; }
+    while (word.length>max) { lines.push(word.slice(0,max)); word=word.slice(max); }
+    if (word) buffer+=(buffer?' ':'')+word;
+  });
+  if (buffer) lines.push(buffer);
+  if (lines.length>2) return [lines[0],lines[1].slice(0,max-1)+'…'];
+  return lines;
+}
+function svgShape(entity, box, legend=false) {
+  const {x,y,w,h}=box;
+  const t=types[entity.type];
+  if (!t.shape) return '';
+  const attr='fill="none" stroke="#000" stroke-width="'+(legend?1.3:1.7)+'" stroke-linejoin="miter"';
+  const left=x-w/2,right=x+w/2,top=y-h/2,bottom=y+h/2;
+  const polygon=points=>'<polygon points="'+points.map(point=>point.join(',')).join(' ')+'" '+attr+'/>';
+  const ellipse='<ellipse cx="'+x+'" cy="'+y+'" rx="'+w/2+'" ry="'+h/2+'" '+attr+'/>';
+  if (t.shape==='ellipse') return ellipse;
+  if (t.shape==='triangle') return polygon([[left,bottom],[x,top],[right,bottom]]);
+  if (t.shape==='diamond') return polygon([[left,y],[x,top],[right,y],[x,bottom]]);
+  let result='<rect x="'+left+'" y="'+top+'" width="'+w+'" height="'+h+'" '+attr+'/>';
+  if (t.inside==='triangle') result+='<polyline points="'+left+','+bottom+' '+x+','+top+' '+right+','+bottom+'" '+attr+'/>';
+  if (t.inside==='downTriangle') result+='<polyline points="'+left+','+top+' '+x+','+bottom+' '+right+','+top+'" '+attr+'/>';
+  if (t.inside==='ellipse') result+=ellipse;
+  if (t.tag) result+='<text x="'+x+'" y="'+(y+(legend?2:17))+'" text-anchor="middle" font-weight="750" font-size="'+(legend?5.5:10)+'" fill="#000">'+t.tag+'</text>';
+  return result;
+}
+function entityTextLayout(type) {
+  const t=types[type];
+  if (t.shape==='triangle' || t.inside==='triangle') return {offset:13,width:.62,size:12,chars:12};
+  if (t.inside==='downTriangle') return {offset:-13,width:.62,size:12,chars:12};
+  if (t.shape==='diamond') return {offset:0,width:.60,size:12,chars:13};
+  if (t.tag) return {offset:-6,width:.86,size:12,chars:17};
+  return {offset:0,width:.88,size:13,chars:17};
+}
+function diagramSvg(graph) {
+  const l=componentLayout(graph);
+  if (!l || !graph.entities.length) return '<svg class="diagram" viewBox="0 0 920 375" role="img" aria-label="Chart unavailable"><text x="460" y="188" text-anchor="middle" fill="#526176" font-size="19">'+(l?'Add entities to draw this chart.':'Edit the ownership lines to draw this chart.')+'</text></svg>';
+  let svg='<svg class="diagram" viewBox="0 0 '+l.width+' '+l.height+'" role="img" aria-label="Entity ownership chart"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0l10 5-10 5z" fill="#000"/></marker></defs>';
+  l.edges.forEach(edge=>{
+    svg+='<polyline points="'+edge.points.map(p=>p.x+','+p.y).join(' ')+'" stroke="#000" stroke-width="1.65" fill="none" marker-end="url(#arrow)"/>';
+  });
+  l.edges.forEach(({pct,label:{x,y}})=>{
+    if (pct===null) return;
+    const value=displayPercent(pct), w=12+value.length*7;
+    svg+='<rect x="'+(x-w/2)+'" y="'+(y-10)+'" width="'+w+'" height="20" rx="4" fill="#fff"/><text text-anchor="middle" x="'+x+'" y="'+(y+4.3)+'" font-size="13" font-weight="650" fill="#3b4b69">'+value+'</text>';
+  });
+  graph.entities.forEach(entity=>{
+    const box=l.nodes.get(entity.id);
+    const layout=entityTextLayout(entity.type),lines=nameLines(entity.name,layout.chars);
+    svg+='<g><title>'+escape(entity.name+' · '+types[entity.type].label)+'</title>'+svgShape(entity,box);
+    const y=box.y+layout.offset-(lines.length-1)*6;
+    lines.forEach((line,i)=>{
+      svg+='<text x="'+box.x+'" y="'+(y+4+i*14)+'" text-anchor="middle" font-size="'+layout.size+'" font-weight="700" fill="#000">'+escape(line)+'</text>';
+    });
+    svg+='</g>';
+  });
+  return svg+'</svg>';
+}
+const $ = id => document.getElementById(id);
+const storageKey = 'deal-structure-project-v1';
+const freshProject = () => ({name:'',approved:[],pending:[],draft:null,startText:'',stepText:'',stepTitle:''});
+function restore() {
+  try {
+    const data=JSON.parse(localStorage.getItem(storageKey));
+    return data && Array.isArray(data.approved) ? {...freshProject(),...data,pending:Array.isArray(data.pending)?data.pending:[]} : freshProject();
+  } catch { return freshProject(); }
+}
+let project=restore();
+let selected=project.draft?'draft':project.pending.length?'queued:0':Math.max(0,project.approved.length-1);
+let editGraph=null;
+let draftInput=project.draft?.pendingInput ?? null;
+const aiEnabled=location.origin==='http://127.0.0.1:8765' ||
+  document.querySelector('meta[name="deal-ai"][content="enabled"]')!==null;
+let aiBusy=false;
+if (aiEnabled) document.querySelector('.privacy').lastChild.textContent=' Charts saved in this browser';
+$('ai-note').hidden=!aiEnabled;
+
+function persist() {
+  try { localStorage.setItem(storageKey,JSON.stringify(project)); }
+  catch {
+    document.querySelector('.privacy').lastChild.textContent=' Deal data stays in this tab';
+  }
+}
+function notice(element, value, good=false) {
+  element.textContent=value;
+  element.hidden=!value;
+  element.classList.toggle('good',good);
+}
+const sample = {title:'Starting structure', description:'', graph:parse(startingExample).graph};
+const syntaxStart=[
+  'Partnership X is owned 50% by A and 50% by B.',
+  'Corporation Y has a wholly owned LLC subsidiary Z.',
+  'A is an individual. B is an individual.',
+  'Public shareholders own 100% of Corporation Buyer.',
+  'Buyer is a U.S. parent corporation. Summit is a hybrid partnership.',
+  'LLC Z is taxed as a corporation. LLC Newco is taxed as a partnership.',
+  'Use a separate sentence for each relationship.'
+];
+const syntaxStep=[
+  'Use one action per sentence or line. Actions run in order within a step.',
+  'At closing, Z will purchase a 20 percent membership interest in X from A.',
+  'A and B sell their entire interests in X to Z.',
+  'A transfers 50% of its interest in X to Z. If A owns 50% of X, Z acquires 25% of X.',
+  'A 20% stake in X is assigned by A to Z.',
+  'Y creates a wholly owned LLC Newco. X changes its name to Target LLC.',
+  'Newco elects to be taxed as a corporation.',
+  'Post-closing ownership of X: Z 70%, B 30%. Include all owners and a total of 100%.',
+  'X merges into Z without changing the survivor’s ownership. Specify any subsidiary transfers first.',
+  'Use “Note: …” for narrative that does not change ownership. For complex steps, you can state the final ownership directly or use Edit chart.'
+];
+const queuedOffset = () => typeof selected==='string' && selected.startsWith('queued:') ? Number(selected.slice(7)) : -1;
+const getVisible = () => selected==='draft' ? project.draft : queuedOffset()>=0 ? project.pending[queuedOffset()] : project.approved[selected] ?? sample;
+const isStepDraft = () => project.draft && project.draft.index>0;
+const slideTitle = (index,input) => index===0?'Starting structure':input||'Transaction step '+index;
+function sameChart(a,b) {
+  const signature=graph=>{
+    const names=new Map(graph.entities.map(entity=>[entity.id,entity.name]));
+    const entities=graph.entities.map(entity=>JSON.stringify([entity.name,entity.type])).sort();
+    const edges=graph.edges.map(edge=>JSON.stringify([names.get(edge.owner),names.get(edge.target),edge.pct])).sort();
+    return JSON.stringify([entities,edges]);
+  };
+  return signature(a)===signature(b);
+}
+function usesManualChart(slide,prior) {
+  if (slide.manual!==undefined) return slide.manual;
+  const result=parse(slide.description,prior);
+  return result.issues.length>0 || !sameChart(slide.graph,result.graph);
+}
+function summarizeChart(graph) {
+  const names=new Map(graph.entities.map(entity=>[entity.id,entity.name]));
+  const list=items=>{
+    const ul=document.createElement('ul');
+    items.forEach(value=>{const li=document.createElement('li');li.textContent=value;ul.append(li);});
+    return ul;
+  };
+  return [
+    list(graph.entities.map(entity=>entity.name+' · '+types[entity.type].label)),
+    list(graph.edges.map(edge=>names.get(edge.owner)+' → '+names.get(edge.target)+(edge.pct===null?' · percentage unspecified':' · '+displayPercent(edge.pct))))
+  ];
+}
+function showMessage(message='',good=false) { notice($('message'),message,good); }
+function slideButton(title,i,current,status) {
+  const button=document.createElement('button');
+  button.className='slide-btn';
+  button.setAttribute('aria-current',String(current));
+  const num=document.createElement('span'); num.className='slide-num'; num.textContent=String(i+1).padStart(2,'0');
+  const name=document.createElement('span'); name.className='slide-name'; name.textContent=title;
+  const tag=document.createElement('span'); tag.className='tag '+(status==='Approved'?'ok':status==='Draft'||status==='Re-review'?'review':''); tag.textContent=status;
+  button.append(num,name,tag);
+  return button;
+}
+function choose(value) {
+  selected=value;
+  editGraph=null;
+  render();
+}
+function render() {
+  const hasStarting=project.approved.length>0;
+  const active=project.draft;
+  const reviewing=project.pending.length>0;
+  const modeStep=active ? Boolean(isStepDraft()) : hasStarting;
+  const current=getVisible();
+  const draft=selected==='draft' && Boolean(active);
+  const offset=queuedOffset();
+  const waiting=offset>=0;
+  const example=!draft && !hasStarting && !waiting;
+  const index=draft?current.index:waiting?project.approved.length+offset:selected;
+  const validation=draft?getValidation(current.graph):'';
+  const canType=!active ? !reviewing : draft;
+  $('form-title').textContent=active?.replace && draft?(modeStep?'Revise transaction step':'Revise starting structure'):modeStep?'Transaction step':'Starting structure';
+  $('form-desc').textContent=!canType?(active?'Select the draft in the slide sequence to continue editing it.':'Review each affected step in order to rebuild the deck.'):modeStep?'Describe what changes from the preceding ownership chart.':'Describe the entities and their ownership before the first transaction.';
+  $('title-field').hidden=!modeStep;
+  $('step-title').value=active && modeStep ? (draftInput?.title ?? active.inputTitle ?? '') : project.stepTitle;
+  $('input-label').textContent=modeStep?'Transaction description':'Ownership description';
+  $('description').placeholder=modeStep?transactionExample:startingExample;
+  $('description').value=active?(draftInput?.text ?? active.description):modeStep?project.stepText:project.startText;
+  $('description').disabled=!canType;
+  $('step-title').disabled=!canType;
+  $('generate').disabled=!canType;
+  $('example').disabled=!canType;
+  $('interpret').hidden=!aiEnabled;
+  $('interpret').disabled=!canType || aiBusy;
+  $('interpret').textContent=aiBusy?'Interpreting…':'Interpret with AI';
+  const evidence=draft?active.evidence??[]:[];
+  $('ai-evidence').hidden=!evidence.length;
+  $('ai-changes').replaceChildren(...evidence.map(change=>{
+    const li=document.createElement('li');
+    li.textContent=change;
+    return li;
+  }));
+  $('generate').firstChild.textContent=(active?'Update draft':modeStep?'Generate step chart':'Generate starting chart')+' ';
+  $('syntax').replaceChildren(...(modeStep?syntaxStep:syntaxStart).map(value=>{const li=document.createElement('li');li.textContent=value;return li;}));
+  $('count').textContent=project.approved.length+' approved'+(reviewing?' · '+project.pending.length+' to re-review':'');
+  $('slides').replaceChildren();
+  if (!hasStarting && !active) $('slides').append(slideButton('Starting structure',0,true,'Example'));
+  const addSlide=(title,i,isCurrent,status,value)=>{
+    const btn=slideButton(title,i,isCurrent,status);
+    btn.onclick=()=>choose(value);
+    $('slides').append(btn);
+  };
+  project.approved.forEach((slide,i)=>{
+    if (active?.replace && active.index===i) addSlide(active.title,i,draft,'Draft','draft');
+    else addSlide(slide.title,i,selected===i,'Approved',i);
+  });
+  project.pending.forEach((slide,i)=>{
+    const slideIndex=project.approved.length+i;
+    if (!i && active?.queued) addSlide(active.title,slideIndex,draft,'Draft','draft');
+    else addSlide(slide.title,slideIndex,offset===i,'Re-review','queued:'+i);
+  });
+  if (active && !active.replace && !active.queued) addSlide(active.title,active.index,draft,'Draft','draft');
+  $('sheet-kicker').textContent=index===0?'Pre-transaction':'Transaction step '+index;
+  $('sheet-title').textContent=current.title;
+  const caption=index>0?current.description:'';
+  $('sheet-caption').textContent=caption;
+  $('sheet-caption').hidden=!caption;
+  $('diagram').innerHTML=diagramSvg(current.graph);
+  $('sheet-project').textContent=project.name || 'Transaction structure';
+  $('sheet-no').textContent=String(index+1).padStart(2,'0');
+  $('status').className='tag '+(draft||waiting?'review':example?'':'ok');
+  $('status').textContent=draft?'Awaiting approval':waiting?'Previous chart · re-review required':example?'Example chart':'Approved';
+  $('review-copy').textContent=example?'Generate a chart to review and approve your starting structure.':waiting?(offset===0?'Rebuild this step from the revised prior chart.':'Re-review the preceding steps first.'):draft?(validation || (active.issues.length?'Resolve the flagged wording or update the chart manually.':active.replace && active.index<project.approved.length-1?'Changing this chart sends later steps for re-review.':'Check the ownership and classifications before approving.')):active?'Finish or discard the current draft before revising another slide.':'This slide is ready to export.';
+  $('revise').hidden=Boolean(draft || waiting || example || active);
+  $('review-next').hidden=!(offset===0 && !active);
+  $('edit').hidden=!draft;
+  $('approve').hidden=!draft;
+  $('approve').disabled=Boolean(validation || (draft && (active.issues.length || active.manualReview || draftInput)));
+  $('approve').textContent=active?.replace?'Approve revision':index===0?'Approve starting structure':'Approve step';
+  $('discard').hidden=!draft;
+  $('discard').textContent=active?.replace?'Discard revision':'Discard draft';
+  $('export').disabled=!hasStarting;
+  $('export').lastChild.textContent=reviewing?'Download approved slides':'Download PowerPoint';
+  $('export').title=active||reviewing?'Export approved slides only':'Export approved slides';
+  $('new-deck').hidden=!hasStarting&&!active;
+  $('editor').hidden=!editGraph;
+  const priorSnapshot=draft && active.queued?project.pending[0]:null;
+  $('previous-chart').hidden=!priorSnapshot;
+  if (priorSnapshot) $('previous-graph').replaceChildren(...summarizeChart(priorSnapshot.graph));
+  if (draft) {
+    showMessage([...(draftInput?['Update the draft to apply the revised wording.']:[]),...(current.issues.length?['Review these statements before approval:',...current.issues]:[]),...(current.manualReview?[project.pending[0]?.manual?'This step previously included manual edits. Compare the previously approved chart, then apply any needed changes using Edit chart.':'This step used AI. Interpret it again or compare the previously approved chart and apply the changes using Edit chart.']:[]),...(validation?[validation]:[])].join('\n'));
+  } else showMessage();
+}
+function getValidation(graph) {
+  if (!graph.entities.length) return 'Add at least one entity before approving.';
+  try { validate(graph); } catch(error) { return error.message; }
+  return '';
+}
+$('project-name').value=project.name;
+$('project-name').oninput=event=>{
+  project.name=event.target.value;
+  $('sheet-project').textContent=project.name||'Transaction structure';
+  persist();
+};
+function updateDraftInput() {
+  const {description,inputTitle}=project.draft;
+  const title=$('step-title').value;
+  const value=$('description').value;
+  draftInput=value!==description || (project.draft.index>0 && title!==(inputTitle ?? '')) ? {title,text:value} : null;
+  project.draft.pendingInput=draftInput;
+  const error=getValidation(project.draft.graph);
+  $('approve').disabled=Boolean(draftInput || project.draft.issues.length || project.draft.manualReview || error);
+  if (draftInput) showMessage('Update the draft to apply the revised wording.');
+  else showMessage([...project.draft.issues,...(error?[error]:[])].join('\n'));
+  persist();
+}
+$('description').oninput=event=>{
+  if (project.draft) {
+    updateDraftInput();
+    return;
+  } else if (project.approved.length) project.stepText=event.target.value;
+  else project.startText=event.target.value;
+  persist();
+};
+$('step-title').oninput=event=>{
+  if (project.draft) { updateDraftInput(); return; }
+  project.stepTitle=event.target.value;persist();
+};
+$('example').onclick=()=>{
+  const desc=$('description');
+  desc.value=project.draft ? (isStepDraft()?transactionExample:startingExample) : project.approved.length ? transactionExample : startingExample;
+  desc.dispatchEvent(new Event('input'));
+  desc.focus();
+};
+$('revise').onclick=()=>{
+  if (project.draft || typeof selected!=='number' || !project.approved[selected]) return;
+  const current=project.approved[selected];
+  const inputTitle=current.inputTitle??(selected>0?current.title:'');
+  project.draft={...clone(current),inputTitle,index:selected,replace:true,issues:[]};
+  persist(); choose('draft'); $('description').focus();
+};
+$('review-next').onclick=()=>{
+  if (project.draft || !project.pending.length || queuedOffset()!==0) return;
+  const original=project.pending[0];
+  const index=project.approved.length;
+  const result=parse(original.description,project.approved[index-1].graph);
+  project.draft={...result,queued:true,manualReview:original.manual===true || original.ai===true,index,title:original.title,inputTitle:original.inputTitle??original.title,description:original.description};
+  persist(); choose('draft');
+};
+$('generate').onclick=()=>{
+  const active=project.draft;
+  if ((active && selected!=='draft') || (!active && project.pending.length)) return;
+  const description=$('description').value.trim();
+  if (!description) { showMessage('Enter an ownership or transaction description.'); $('description').focus(); return; }
+  const index=active?.index ?? project.approved.length;
+  const inputTitle=$('step-title').value.trim();
+  const title=slideTitle(index,inputTitle);
+  const prior=index>0?project.approved[index-1].graph:null;
+  if (active && description===active.description) project.draft={...active,title,inputTitle};
+  else {
+    const result=parse(description,prior);
+    project.draft={...result,index,replace:Boolean(active?.replace),queued:Boolean(active?.queued),manualReview:Boolean(active?.manualReview),description,inputTitle,title};
+  }
+  delete project.draft.pendingInput;
+  draftInput=null;
+  persist(); choose('draft');
+};
+$('interpret').onclick=async()=>{
+  const active=project.draft;
+  if (!aiEnabled || aiBusy || (active && selected!=='draft') || (!active && project.pending.length)) return;
+  const rawDescription=$('description').value;
+  const description=rawDescription.trim();
+  const rawTitle=$('step-title').value;
+  if (!description) { showMessage('Enter a description to interpret.'); $('description').focus(); return; }
+  const index=active?.index ?? project.approved.length;
+  const prior=index>0?project.approved[index-1].graph:null;
+  const currentProject=project;
+  const currentSelection=selected;
+  const stillCurrent=()=>project===currentProject && selected===currentSelection && project.draft===active &&
+    $('description').value===rawDescription && $('step-title').value===rawTitle;
+  aiBusy=true;
+  $('interpret').disabled=true;
+  $('interpret').textContent='Interpreting…';
+  showMessage('Interpreting this description with OpenRouter…',true);
+  let message='';
+  try {
+    const response=await fetch('/api/interpret',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({description,graph:prior??empty()}),signal:AbortSignal.timeout(50000)
+    });
+    const data=await response.json();
+    if (!response.ok) throw Error(data.error||'The interpretation request failed.');
+    if (!stillCurrent()) return;
+    const result=aiDraft(description,prior,data);
+    const inputTitle=rawTitle.trim();
+    project.draft={
+      ...result,index,replace:Boolean(active?.replace),queued:Boolean(active?.queued),
+      manualReview:Boolean(active?.queued && project.pending[0]?.manual),
+      title:slideTitle(index,inputTitle),description,inputTitle,ai:true
+    };
+    draftInput=null;
+    persist();
+    choose('draft');
+    if (!result.issues.length && !project.draft.manualReview) message='AI draft ready. Review the proposed ownership chart before approving.';
+  } catch(error) {
+    if (stillCurrent()) message='AI interpretation could not be applied. '+error.message;
+  } finally {
+    aiBusy=false;
+    $('interpret').textContent='Interpret with AI';
+    $('interpret').disabled=$('generate').disabled;
+    if (message) showMessage(message,message.startsWith('AI draft ready.'));
+    else if ($('message').textContent==='Interpreting this description with OpenRouter…') showMessage();
+  }
+};
+$('approve').onclick=()=>{
+  const draft=project.draft;
+  if (!draft || draftInput || draft.issues.length || draft.manualReview || getValidation(draft.graph)) return;
+  const {index,title,description,graph,inputTitle}=draft;
+  const previous=project.approved[index];
+  const manual=draft.manual===true || (draft.manual===undefined && previous && usesManualChart(previous,index>0?project.approved[index-1].graph:null));
+  if (draft.replace && !sameChart(previous.graph,graph)) {
+    const later=project.approved.slice(index+1).map((slide,offset)=>({...slide,manual:usesManualChart(slide,project.approved[index+offset].graph)}));
+    project.approved.splice(index+1);
+    project.pending=[...later,...project.pending];
+  }
+  project.approved[index]={title,description,graph,inputTitle,manual:Boolean(manual),ai:draft.ai===true};
+  if (draft.queued) project.pending.shift();
+  if (!draft.replace && !draft.queued) { project.stepText=''; project.stepTitle=''; }
+  draftInput=null;
+  project.draft=null;
+  persist(); choose(project.pending.length?'queued:0':index);
+  showMessage(project.pending.length?'Slide approved. Re-review the next step using the revised ownership chart.':index===0?'Starting structure approved. Add your first transaction step.':'Step '+index+' approved. Add another step or download the deck.',true);
+  (project.pending.length?$('review-next'):$('description')).focus();
+};
+$('discard').onclick=()=>{
+  const active=project.draft;
+  const returnTo=active?.replace?active.index:project.pending.length?'queued:0':Math.max(0,project.approved.length-1);
+  if (!active?.replace && !active?.queued) { project.stepText=''; project.stepTitle=''; }
+  draftInput=null;
+  project.draft=null;
+  persist(); choose(returnTo);
+};
+$('edit').onclick=()=>{
+  editGraph=clone(getVisible().graph);
+  $('editor').hidden=false;
+  notice($('editor-message'),'');
+  renderEditor();
+  $('editor').scrollIntoView({block:'nearest',behavior:'smooth'});
+  $('editor').querySelector('input,select,button')?.focus({preventScroll:true});
+};
+$('close-editor').onclick=()=>{editGraph=null;$('editor').hidden=true;$('edit').focus();};
+function editorInput(value,label,change) {
+  const input=document.createElement('input');
+  input.className='field'; input.value=value; input.placeholder=label; input.setAttribute('aria-label',label);
+  input.oninput=()=>change(input.value);
+  return input;
+}
+function editorSelect(items,value,label,change) {
+  const select=document.createElement('select'); select.className='field'; select.setAttribute('aria-label',label);
+  for (const [key,text] of items) {
+    const option=document.createElement('option'); option.value=key; option.textContent=text; select.append(option);
+  }
+  select.value=value; select.onchange=()=>change(select.value);
+  return select;
+}
+function deleteButton(label,action) {
+  const btn=document.createElement('button'); btn.type='button'; btn.textContent='×';btn.setAttribute('aria-label',label);btn.onclick=action;
+  return btn;
+}
+function renderEditor() {
+  $('entity-rows').replaceChildren();
+  $('owner-rows').replaceChildren();
+  editGraph.entities.forEach((entity,i)=>{
+    const row=document.createElement('div');row.className='row';
+    const input=editorInput(entity.name,'Entity name '+(i+1),value=>{entity.name=value;});
+    input.maxLength=100;
+    input.onchange=()=>{refreshOwnershipOptions();};
+    const select=editorSelect(Object.entries(types).map(([key,value])=>[key,value.label]),entity.type,'Entity classification '+(i+1),value=>{entity.type=value;});
+    const remove=deleteButton('Remove entity '+(i+1),()=>{
+      editGraph.entities=editGraph.entities.filter(item=>item!==entity);
+      editGraph.edges=editGraph.edges.filter(edge=>edge.owner!==entity.id&&edge.target!==entity.id);
+      renderEditor();
+    });
+    row.append(input,select,remove);$('entity-rows').append(row);
+  });
+  refreshOwnershipOptions();
+}
+function refreshOwnershipOptions() {
+  const values=[['','Select entity'],...editGraph.entities.map((entity,i)=>[entity.id,entity.name||'Entity '+(i+1)])];
+  $('owner-rows').replaceChildren();
+  editGraph.edges.forEach((edge,i)=>{
+    const row=document.createElement('div');row.className='row owners';
+    const owner=editorSelect(values,edge.owner||'','Owner '+(i+1),value=>{edge.owner=Number(value);});
+    const target=editorSelect(values,edge.target||'','Owned entity '+(i+1),value=>{edge.target=Number(value);});
+    const pct=editorInput(edge.pct??'','Ownership % '+(i+1),value=>{edge.pct=value.trim()===''?null:value;});
+    pct.type='number';pct.min=0;pct.max=100;pct.step='any';
+    const remove=deleteButton('Remove ownership '+(i+1),()=>{editGraph.edges=editGraph.edges.filter(item=>item!==edge);renderEditor();});
+    row.append(owner,target,pct,remove);$('owner-rows').append(row);
+  });
+}
+$('add-entity').onclick=()=>{
+  if (editGraph.entities.length>=36) { notice($('editor-message'),'Use up to 36 entities per chart.'); return; }
+  const id=Math.max(0,...editGraph.entities.map(entity=>entity.id))+1;
+  editGraph.entities.push({id,name:'',type:'other'});
+  renderEditor();$('entity-rows').lastChild.firstChild.focus();
+};
+$('add-owner').onclick=()=>{
+  if (editGraph.edges.length>=96) { notice($('editor-message'),'Use up to 96 ownership lines per chart.'); return; }
+  editGraph.edges.push({owner:0,target:0,pct:null});
+  refreshOwnershipOptions();$('owner-rows').lastChild.firstChild.focus();
+};
+$('apply').onclick=()=>{
+  try {
+    const graph={entities:[],edges:[]};
+    const names=new Set(); const pairs=new Set();
+    editGraph.entities.forEach(entity=>{
+      const name=trim(entity.name);const key=nameKey(name);
+      if (!key || names.has(key)) throw Error('Give every entity a distinct name.');
+      names.add(key);graph.entities.push({...entity,name});
+    });
+    editGraph.edges.forEach(edge=>{
+      if (!edge.owner || !edge.target) throw Error('Select an owner and an owned entity on every ownership row.');
+      const key=edge.owner+':'+edge.target;
+      if (pairs.has(key)) throw Error('Use only one ownership row for each owner and owned entity pair.');
+      pairs.add(key);setEdge(graph,edge.owner,edge.target,edge.pct);
+    });
+    const error=getValidation(graph); if (error) throw Error(error);
+    const current=getVisible();
+    project.draft={...current,graph,issues:[],manual:true,manualReview:false};
+    persist(); choose('draft');
+    if (!draftInput) showMessage('Chart edits applied. Review the slide before approving.',true);
+    $('edit').focus();
+  } catch(error) { notice($('editor-message'),error.message); }
+};
+$('legend').insertAdjacentHTML('beforeend',Object.entries(types).map(([type,t])=>'<span>'+(t.shape?'<svg viewBox="0 0 22 18" aria-hidden="true">'+svgShape({type},{x:11,y:9,w:18,h:13},true)+'</svg>':'')+escape(t.label)+'</span>').join(''));
+const xmlDeclaration='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+const rel='http://schemas.openxmlformats.org/officeDocument/2006/relationships/';
+const pns='xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="'+rel.slice(0,-1)+'" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"';
+const emu = px => Math.round(px*9525);
+const color = hex => '<a:solidFill><a:srgbClr val="'+hex+'"/></a:solidFill>';
+const xfrm = (x,y,w,h,flip='') => '<a:xfrm'+flip+'><a:off x="'+emu(x)+'" y="'+emu(y)+'"/><a:ext cx="'+emu(w)+'" cy="'+emu(h)+'"/></a:xfrm>';
+const geom = shape => '<a:prstGeom prst="'+shape+'"><a:avLst/></a:prstGeom>';
+const groupRoot='<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>';
+const relationships = items => xmlDeclaration+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+items.map(([id,type,target])=>'<Relationship Id="'+id+'" Type="'+rel+type+'" Target="'+target+'"/>').join('')+'</Relationships>';
+const clrMap='<p:clrMap accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" bg1="lt1" bg2="lt2" folHlink="folHlink" hlink="hlink" tx1="dk1" tx2="dk2"/>';
+const mapOverride='<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr>';
+function makeTheme() {
+  const palette={dk1:'18243B',lt1:'FFFFFF',dk2:'283751',lt2:'F5F7FC',accent1:'4039B8',accent2:'4664A5',accent3:'307B78',accent4:'A4733D',accent5:'6552AA',accent6:'687891',hlink:'4039B8',folHlink:'6552AA'};
+  const colors=Object.entries(palette).map(([key,hex])=>'<a:'+key+'><a:srgbClr val="'+hex+'"/></a:'+key+'>').join('');
+  const fonts=(tag,font)=>'<a:'+tag+'><a:latin typeface="'+font+'"/><a:ea typeface=""/><a:cs typeface=""/></a:'+tag+'>';
+  const fill='<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>';
+  return xmlDeclaration+'<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Deal Structure"><a:themeElements><a:clrScheme name="Deal Structure">'+colors+'</a:clrScheme><a:fontScheme name="Deal Structure">'+fonts('majorFont','Georgia')+fonts('minorFont','Arial')+'</a:fontScheme><a:fmtScheme name="Deal Structure"><a:fillStyleLst>'+fill.repeat(3)+'</a:fillStyleLst><a:lnStyleLst>'+[9525,19050,28575].map(w=>'<a:ln w="'+w+'">'+fill+'<a:prstDash val="solid"/></a:ln>').join('')+'</a:lnStyleLst><a:effectStyleLst>'+'<a:effectStyle><a:effectLst/></a:effectStyle>'.repeat(3)+'</a:effectStyleLst><a:bgFillStyleLst>'+fill.repeat(3)+'</a:bgFillStyleLst></a:fmtScheme></a:themeElements></a:theme>';
+}
+function contentTypes(count) {
+  const p='application/vnd.openxmlformats-officedocument.presentationml.';
+  const overrides=[['/ppt/presentation.xml',p+'presentation.main+xml'],['/ppt/slideMasters/slideMaster1.xml',p+'slideMaster+xml'],['/ppt/slideLayouts/slideLayout1.xml',p+'slideLayout+xml'],['/ppt/theme/theme1.xml','application/vnd.openxmlformats-officedocument.theme+xml']];
+  for (let i=1;i<=count;i++) overrides.push(['/ppt/slides/slide'+i+'.xml',p+'slide+xml']);
+  return xmlDeclaration+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+overrides.map(([name,type])=>'<Override PartName="'+name+'" ContentType="'+type+'"/>').join('')+'</Types>';
+}
+function toSlide(slide,i,projectName) {
+  const l=componentLayout(slide.graph);
+  const caption=i?slide.description:'';
+  const capLines=caption?caption.split('\n').flatMap(line=>wrapText(line,130)):[];
+  const capSize=capLines.length>12?9:capLines.length>6?11:15;
+  const maxCapLines=16;
+  const shown=capLines.length>maxCapLines?[...capLines.slice(0,maxCapLines-1),capLines.slice(maxCapLines-1).join(' ')]:capLines;
+  const diagramTop=140+Math.min(170,shown.length*(capSize+3)+6);
+  const scale=Math.min(1140/l.width,(650-diagramTop)/l.height);
+  const originX=(1280-l.width*scale)/2, originY=diagramTop+(650-diagramTop-l.height*scale)/2;
+  const X=x=>originX+x*scale, Y=y=>originY+y*scale;
+  let id=1;
+  const shape=(name,x,y,w,h,geometry,fill,stroke,dash,body='')=>
+    '<p:sp><p:nvSpPr><p:cNvPr id="'+(++id)+'" name="'+escape(name)+'"/><p:cNvSpPr'+(body?' txBox="1"':'')+'/><p:nvPr/></p:nvSpPr><p:spPr>'+xfrm(x,y,w,h)+geom(geometry)+(fill?color(fill):'<a:noFill/>')+'<a:ln w="15240">'+(stroke?color(stroke):'<a:noFill/>')+(dash?'<a:prstDash val="dash"/>':'')+'</a:ln></p:spPr>'+body+'</p:sp>';
+  const textBox=(name,lines,x,y,w,h,{size=16,hex='18243B',bold=false,align='l',font='Arial',fill=null,fit=false}={})=>{
+    const paragraphs=lines.map(line=>'<a:p><a:pPr algn="'+align+'"/><a:r><a:rPr lang="en-US" sz="'+Math.max(250,Math.round(size*75))+'" b="'+(bold?1:0)+'">'+color(hex)+'<a:latin typeface="'+font+'"/></a:rPr><a:t>'+escape(line)+'</a:t></a:r></a:p>').join('');
+    const body='<p:txBody><a:bodyPr lIns="0" tIns="0" rIns="0" bIns="0" wrap="'+(fit?'square':'none')+'" anchor="ctr">'+(fit?'<a:normAutofit/>':'<a:noAutofit/>')+'</a:bodyPr><a:lstStyle/>'+paragraphs+'</p:txBody>';
+    return shape(name,x,y,w,h,'rect',fill,null,false,body);
+  };
+  const line=(name,x1,y1,x2,y2,hex='687895',arrow=false)=>{
+    if(x1===x2&&y1===y2) return '';
+    const flip=(x2<x1?' flipH="1"':'')+(y2<y1?' flipV="1"':'');
+    return '<p:cxnSp><p:nvCxnSpPr><p:cNvPr id="'+(++id)+'" name="'+name+'"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr><p:spPr>'+xfrm(Math.min(x1,x2),Math.min(y1,y2),Math.abs(x2-x1),Math.abs(y2-y1),flip)+geom('line')+'<a:ln w="14600">'+color(hex)+(arrow?'<a:tailEnd type="triangle" w="sm" len="sm"/>':'')+'</a:ln></p:spPr></p:cxnSp>';
+  };
+  let parts=textBox('Slide label',[i?'TRANSACTION STEP '+i:'PRE-TRANSACTION'],65,36,1148,22,{size:13,hex:'4039B8',bold:true});
+  parts+=textBox('Slide title',[slide.title],65,64,1150,51,{size:41,font:'Georgia',fit:true});
+  parts+=line('Header rule',65,123,1215,123,'DCE3ED');
+  if (shown.length) parts+=textBox('Transaction description',shown,65,131,1150,diagramTop-134,{size:capSize,hex:'526176',fit:true});
+  l.edges.forEach(edge=>{
+    edge.points.forEach((point,j)=>{
+      if (!j) return;
+      const before=edge.points[j-1];
+      parts+=line('Ownership line',X(before.x),Y(before.y),X(point.x),Y(point.y),'000000',j===edge.points.length-1);
+    });
+  });
+  l.edges.forEach(edge=>{
+    if (edge.pct===null) return;
+    const value=displayPercent(edge.pct), width=(12+value.length*7)*scale;
+    parts+=textBox('Ownership percentage',[value],X(edge.label.x)-width/2,Y(edge.label.y)-10*scale,width,20*scale,{size:13*scale,align:'ctr',bold:true,hex:'3B4B69',fill:'FFFFFF'});
+  });
+  slide.graph.entities.forEach(entity=>{
+    const t=types[entity.type], box=l.nodes.get(entity.id);
+    const {x,y,w,h}=box;
+    const layout=entityTextLayout(entity.type);
+    const left=X(x-w/2),right=X(x+w/2),top=Y(y-h/2),bottom=Y(y+h/2);
+    const symbolName=entity.name+' — '+t.label;
+    if (t.shape) parts+=shape(symbolName,left,top,w*scale,h*scale,t.shape,null,'000000',false);
+    if (t.inside==='ellipse') parts+=shape(symbolName+' oval',left,top,w*scale,h*scale,'ellipse',null,'000000',false);
+    if (t.inside==='triangle' || t.inside==='downTriangle') {
+      const upright=t.inside==='triangle';
+      parts+=line('Hybrid symbol',left,upright?bottom:top,X(x),upright?top:bottom,'000000');
+      parts+=line('Hybrid symbol',X(x),upright?top:bottom,right,upright?bottom:top,'000000');
+    }
+    if (t.tag) parts+=textBox(t.tag,[t.tag],left,Y(y+10),w*scale,14*scale,{size:10*scale,bold:true,align:'ctr',hex:'000000'});
+    const lines=wrapText(entity.name,layout.chars);
+    const visible=lines.length>2?[lines[0],lines.slice(1).join(' ')]:lines;
+    const labelWidth=w*layout.width;
+    parts+=textBox(entity.name,visible,X(x-labelWidth/2),Y(y+layout.offset-13),labelWidth*scale,26*scale,{size:layout.size*scale,bold:true,align:'ctr',hex:'000000',fit:true});
+  });
+  parts+=line('Footer rule',65,662,1215,662,'DCE3ED');
+  parts+=textBox('Deck name',[projectName],65,673,975,23,{size:13,hex:'68778D'});
+  parts+=textBox('Page number',[String(i+1).padStart(2,'0')],1125,673,90,23,{size:13,hex:'68778D',align:'r'});
+  return xmlDeclaration+'<p:sld '+pns+'><p:cSld><p:bg><p:bgPr>'+color('FFFFFF')+'<a:effectLst/></p:bgPr></p:bg><p:spTree>'+groupRoot+parts+'</p:spTree></p:cSld>'+mapOverride+'</p:sld>';
+}
+function wrapText(text,max) {
+  const lines=[];
+  let rest=text.trim();
+  while (rest.length>max) {
+    const space=rest.lastIndexOf(' ',max);
+    const boundary=space>0?space:max;
+    lines.push(rest.slice(0,boundary));
+    rest=rest.slice(boundary).trimStart();
+  }
+  lines.push(rest);
+  return lines;
+}
+const crcTable=Uint32Array.from({length:256},(_,i)=>{
+  for(let j=0;j<8;j++) i=i&1 ? 0xedb88320^(i>>>1) : i>>>1;
+  return i>>>0;
+});
+function packZip(parts) {
+  const encoder=new TextEncoder();
+  const records=[], central=[];
+  let offset=0, centralSize=0;
+  for (const [path,xml] of Object.entries(parts)) {
+    const name=encoder.encode(path), bytes=encoder.encode(xml);
+    let crc=0xffffffff;
+    for (const byte of bytes) crc=crcTable[(crc^byte)&255]^(crc>>>8);
+    crc=(crc^0xffffffff)>>>0;
+    const make=(length)=>new DataView(new ArrayBuffer(length));
+    const u=(view,i,n)=>view.setUint16(i,n,true);
+    const v=(view,i,n)=>view.setUint32(i,n,true);
+    const local=make(30);
+    v(local,0,0x04034b50); u(local,4,20); u(local,12,33); v(local,14,crc); v(local,18,bytes.length); v(local,22,bytes.length); u(local,26,name.length);
+    const entry=make(46);
+    v(entry,0,0x02014b50); u(entry,4,20); u(entry,6,20); u(entry,14,33); v(entry,16,crc); v(entry,20,bytes.length); v(entry,24,bytes.length); u(entry,28,name.length); v(entry,42,offset);
+    records.push(local.buffer,name,bytes); central.push(entry.buffer,name);
+    offset+=30+name.length+bytes.length; centralSize+=46+name.length;
+  }
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);
+  end.setUint16(8,central.length/2,true);end.setUint16(10,central.length/2,true);
+  end.setUint32(12,centralSize,true);end.setUint32(16,offset,true);
+  return new Blob([...records,...central,end.buffer],{type:'application/vnd.openxmlformats-officedocument.presentationml.presentation'});
+}
+function makePptx(slides,projectName) {
+  const ids=slides.map((_,i)=>'<p:sldId id="'+(256+i)+'" r:id="rId'+(2+i)+'"/>').join('');
+  const parts={
+    '[Content_Types].xml':contentTypes(slides.length),
+    '_rels/.rels':relationships([['rId1','officeDocument','ppt/presentation.xml']]),
+    'ppt/presentation.xml':xmlDeclaration+'<p:presentation '+pns+'><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst><p:sldIdLst>'+ids+'</p:sldIdLst><p:sldSz cx="12192000" cy="6858000" type="screen16x9"/><p:notesSz cx="6858000" cy="9144000"/><p:defaultTextStyle/></p:presentation>',
+    'ppt/_rels/presentation.xml.rels':relationships([['rId1','slideMaster','slideMasters/slideMaster1.xml'],...slides.map((_,i)=>['rId'+(2+i),'slide','slides/slide'+(i+1)+'.xml'])]),
+    'ppt/slideMasters/slideMaster1.xml':xmlDeclaration+'<p:sldMaster '+pns+'><p:cSld><p:spTree>'+groupRoot+'</p:spTree></p:cSld>'+clrMap+'<p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst><p:txStyles><p:titleStyle/><p:bodyStyle/><p:otherStyle/></p:txStyles></p:sldMaster>',
+    'ppt/slideMasters/_rels/slideMaster1.xml.rels':relationships([['rId1','slideLayout','../slideLayouts/slideLayout1.xml'],['rId2','theme','../theme/theme1.xml']]),
+    'ppt/slideLayouts/slideLayout1.xml':xmlDeclaration+'<p:sldLayout '+pns+' type="blank" preserve="1"><p:cSld name="Blank"><p:spTree>'+groupRoot+'</p:spTree></p:cSld>'+mapOverride+'</p:sldLayout>',
+    'ppt/slideLayouts/_rels/slideLayout1.xml.rels':relationships([['rId1','slideMaster','../slideMasters/slideMaster1.xml']]),
+    'ppt/theme/theme1.xml':makeTheme()
+  };
+  slides.forEach((slide,i)=>{
+    parts['ppt/slides/slide'+(i+1)+'.xml']=toSlide(slide,i,projectName);
+    parts['ppt/slides/_rels/slide'+(i+1)+'.xml.rels']=relationships([['rId1','slideLayout','../slideLayouts/slideLayout1.xml']]);
+  });
+  return packZip(parts);
+}
+$('new-deck').onclick=()=>{
+  if (!confirm('Start a new deck? This clears the current workspace. Download the PowerPoint first to keep a copy.')) return;
+  project=freshProject();draftInput=null;$('project-name').value='';
+  persist();choose(0);$('description').focus();
+};
+$('export').onclick=()=>{
+  if(!project.approved.length) return;
+  try {
+    const title=project.name.trim()||'Transaction structure';
+    const url=URL.createObjectURL(makePptx(project.approved,title));
+    const anchor=document.createElement('a');
+    const filename=title.replace(/[^\p{L}\p{N} _-]/gu,'').trim()||'Transaction structure';
+    anchor.href=url; anchor.download=filename+'.pptx';
+    document.body.append(anchor); anchor.click();anchor.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),30000);
+    showMessage('PowerPoint downloaded with '+project.approved.length+' approved '+(project.approved.length===1?'slide.':'slides.'),true);
+  } catch(error) { showMessage('PowerPoint export failed. '+error.message); }
+};
+render();
+</script>
+</body>
+</html>
