@@ -1,8 +1,7 @@
-"""Password-protected WSGI entry point for the hosted Deal Structure demo."""
+"""Public WSGI entry point for the hosted Deal Structure demo."""
 
 import base64
 import hashlib
-import hmac
 import json
 import os
 import re
@@ -12,26 +11,22 @@ from urllib.parse import urlsplit
 
 from deal_structure import DEFAULT_MODEL, HTML, interpret, validate_input
 
-DEMO_USER = "professor"
 MAX_BODY = 65536
 AI_SLOT = BoundedSemaphore(1)
 
 
 def configure():
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
-    password = os.environ.get("DEMO_PASSWORD", "")
     origin = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
     url = urlsplit(origin)
     if not re.fullmatch(r"[A-Za-z0-9_-]+", key):
         raise RuntimeError("Set OPENROUTER_API_KEY in the Render environment.")
-    if len(password) < 16 or not password.isascii() or not password.isprintable():
-        raise RuntimeError("Set DEMO_PASSWORD to at least 16 printable ASCII characters.")
     if url.scheme != "https" or not url.hostname or url.path or url.query or url.fragment or url.username:
         raise RuntimeError("Expected Render to set RENDER_EXTERNAL_URL to the HTTPS service origin.")
-    return key, f"{DEMO_USER}:{password}".encode("ascii"), origin, url.netloc
+    return key, origin, url.netloc
 
 
-KEY, AUTH_CREDENTIALS, ORIGIN, HOSTNAME = configure()
+KEY, ORIGIN, HOSTNAME = configure()
 MODEL = os.environ.get("OPENROUTER_MODEL", "").strip() or DEFAULT_MODEL
 PAGE = HTML.read_text(encoding="utf-8").replace(
     "<head>", '<head>\n<meta name="deal-ai" content="enabled">', 1
@@ -47,18 +42,7 @@ CSP = (
 )
 
 
-def authenticated(header):
-    scheme, _, encoded = header.partition(" ")
-    if scheme.lower() != "basic" or len(encoded) > 2048:
-        return False
-    try:
-        credentials = base64.b64decode(encoded, validate=True)
-    except ValueError:
-        return False
-    return hmac.compare_digest(credentials, AUTH_CREDENTIALS)
-
-
-def send(start_response, status, body, *, content_type="application/json", extra=()):
+def send(start_response, status, body, *, content_type="application/json"):
     data = body if isinstance(body, bytes) else json.dumps(body).encode("utf-8")
     headers = [
         ("Content-Type", content_type),
@@ -69,7 +53,7 @@ def send(start_response, status, body, *, content_type="application/json", extra
         ("Referrer-Policy", "no-referrer"),
         ("X-Robots-Tag", "noindex, nofollow"),
     ]
-    start_response(status, [*headers, *extra])
+    start_response(status, headers)
     return [data]
 
 
@@ -114,11 +98,6 @@ def application(environ, start_response):
         return send(start_response, "200 OK", {"status": "ok"})
     if environ.get("HTTP_HOST") != HOSTNAME:
         return send(start_response, "403 Forbidden", {"error": "Open the demo from its Render address."})
-    if not authenticated(environ.get("HTTP_AUTHORIZATION", "")):
-        return send(
-            start_response, "401 Unauthorized", {"error": "A demo password is required."},
-            extra=(("WWW-Authenticate", 'Basic realm="Deal Structure Demo", charset="UTF-8"'),),
-        )
     if method == "GET" and path in ("/", "/Deal_Structure.html"):
         return send(start_response, "200 OK", PAGE_BYTES, content_type="text/html; charset=utf-8")
     if method == "POST" and path == "/api/interpret":
