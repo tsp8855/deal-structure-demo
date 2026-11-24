@@ -49,18 +49,18 @@ const types = {
   corporation:{label:'Corporation',shape:'rect'},
   partnership:{label:'Partnership',shape:'triangle'},
   individual:{label:'Individual',shape:'ellipse'},
-  disregarded:{label:'Disregarded entity',shape:'ellipse'},
-  branch:{label:'Branch',shape:'ellipse'},
+  disregarded:{label:'Disregarded entity',shape:'rect',inside:'ellipse'},
+  branch:{label:'Branch',shape:'ellipse',legend:false},
   public_shareholders:{label:'Public shareholders',shape:'ellipse'},
-  hybrid_partnership:{label:'Hybrid partnership',shape:'rect',inside:'triangle'},
-  reverse_hybrid_corporation:{label:'Reverse hybrid corporation',shape:'rect',inside:'downTriangle'},
-  hybrid_branch:{label:'Hybrid branch or disregarded entity',shape:'rect',inside:'ellipse'},
-  trust:{label:'Trust',shape:'diamond'},
-  us_parent:{label:'U.S. parent corporation',shape:'rect',tag:'USP'},
+  hybrid_partnership:{label:'Hybrid partnership',shape:'rect',inside:'triangle',legend:false},
+  reverse_hybrid_corporation:{label:'Reverse hybrid corporation',shape:'rect',inside:'downTriangle',legend:false},
+  hybrid_branch:{label:'Hybrid branch',shape:'rect',inside:'ellipse',legend:false,legacy:true},
+  trust:{label:'Trust',shape:'diamond',legend:false},
+  us_parent:{label:'U.S. parent corporation',shape:'rect',tag:'USP',legend:false},
   llc_corporation:{label:'LLC taxed as a corporation',shape:'rect'},
   llc_partnership:{label:'LLC taxed as a partnership',shape:'triangle'},
-  llc:{label:'LLC (classification unspecified)',shape:null},
-  other:{label:'Unspecified',shape:null}
+  llc:{label:'LLC (classification unspecified)',shape:null,legend:false},
+  other:{label:'Unspecified',shape:'wave',stroke:'B91C1C'}
 };
 const llcTaxTypes = {
   'llc taxed as a corporation':'llc_corporation',
@@ -570,12 +570,15 @@ function componentLayout(graph) {
     const outgoing=graph.edges.filter(line=>line.owner===edge.owner).sort((x,y)=>nodes.get(x.target).x-nodes.get(y.target).x);
     const incoming=graph.edges.filter(line=>line.target===edge.target).sort((x,y)=>nodes.get(x.owner).x-nodes.get(y.owner).x);
     const p1={x:a.x+(outgoing.indexOf(edge)-(outgoing.length-1)/2)*Math.min(17,70/outgoing.length),y:a.y+a.h/2};
+    const ownerShape=types[graph.entities.find(entity=>entity.id===edge.owner).type].shape;
+    if (ownerShape==='wave') p1.y-=a.h/8;
     const p2={x:b.x+(incoming.indexOf(edge)-(incoming.length-1)/2)*Math.min(17,42/incoming.length),y:b.y-b.h/2-3};
     const target=graph.entities.find(entity=>entity.id===edge.target);
     const targetShape=types[target.type].shape;
     const fraction=Math.abs(p2.x-b.x)/(b.w/2);
     if (targetShape==='triangle') p2.y+=fraction*b.h;
     if (targetShape==='diamond') p2.y+=fraction*b.h/2;
+    if (targetShape==='wave') p2.y+=b.h/8;
     if (targetShape==='ellipse') p2.y+=(1-Math.sqrt(1-fraction*fraction))*b.h/2;
     const lift = (p2.y-p1.y)*.55;
     const bendY = p2.y-Math.min(27,lift);
@@ -609,11 +612,17 @@ function svgShape(entity, box, legend=false) {
   const {x,y,w,h}=box;
   const t=types[entity.type];
   if (!t.shape) return '';
-  const attr='fill="none" stroke="#000" stroke-width="'+(legend?1.3:1.7)+'" stroke-linejoin="miter"';
+  const attr='fill="none" stroke="#'+(t.stroke||'000000')+'" stroke-width="'+(legend?1.3:1.7)+'" stroke-linejoin="miter"';
   const left=x-w/2,right=x+w/2,top=y-h/2,bottom=y+h/2;
   const polygon=points=>'<polygon points="'+points.map(point=>point.join(',')).join(' ')+'" '+attr+'/>';
   const ellipse='<ellipse cx="'+x+'" cy="'+y+'" rx="'+w/2+'" ry="'+h/2+'" '+attr+'/>';
   if (t.shape==='ellipse') return ellipse;
+  if (t.shape==='wave') {
+    const swell=h/8;
+    const wave='M '+left+' '+(top+swell)+' C '+(left+w/3)+' '+(top-swell)+' '+(right-w/3)+' '+(top+3*swell)+' '+right+' '+(top+swell)+
+      ' V '+(bottom-swell)+' C '+(right-w/3)+' '+(bottom+swell)+' '+(left+w/3)+' '+(bottom-3*swell)+' '+left+' '+(bottom-swell)+' Z';
+    return '<path d="'+wave+'" '+attr+'/>';
+  }
   if (t.shape==='triangle') return polygon([[left,bottom],[x,top],[right,bottom]]);
   if (t.shape==='diamond') return polygon([[left,y],[x,top],[right,y],[x,bottom]]);
   let result='<rect x="'+left+'" y="'+top+'" width="'+w+'" height="'+h+'" '+attr+'/>';
@@ -1022,7 +1031,8 @@ function renderEditor() {
     const input=editorInput(entity.name,'Entity name '+(i+1),value=>{entity.name=value;});
     input.maxLength=100;
     input.onchange=()=>{refreshOwnershipOptions();};
-    const select=editorSelect(Object.entries(types).map(([key,value])=>[key,value.label]),entity.type,'Entity classification '+(i+1),value=>{entity.type=value;});
+    const choices=Object.entries(types).filter(([key,value])=>!value.legacy||key===entity.type);
+    const select=editorSelect(choices.map(([key,value])=>[key,value.label]),entity.type,'Entity classification '+(i+1),value=>{entity.type=value;});
     const remove=deleteButton('Remove entity '+(i+1),()=>{
       editGraph.entities=editGraph.entities.filter(item=>item!==entity);
       editGraph.edges=editGraph.edges.filter(edge=>edge.owner!==entity.id&&edge.target!==entity.id);
@@ -1079,7 +1089,7 @@ $('apply').onclick=()=>{
     $('edit').focus();
   } catch(error) { notice($('editor-message'),error.message); }
 };
-$('legend').insertAdjacentHTML('beforeend',Object.entries(types).map(([type,t])=>'<span>'+(t.shape?'<svg viewBox="0 0 22 18" aria-hidden="true">'+svgShape({type},{x:11,y:9,w:18,h:13},true)+'</svg>':'')+escape(t.label)+'</span>').join(''));
+$('legend').insertAdjacentHTML('beforeend',Object.entries(types).filter(([,type])=>type.legend!==false).map(([type,t])=>'<span>'+(t.shape?'<svg viewBox="0 0 22 18" aria-hidden="true">'+svgShape({type},{x:11,y:9,w:18,h:13},true)+'</svg>':'')+escape(t.label)+'</span>').join(''));
 const xmlDeclaration='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 const rel='http://schemas.openxmlformats.org/officeDocument/2006/relationships/';
 const pns='xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="'+rel.slice(0,-1)+'" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"';
@@ -1150,7 +1160,7 @@ function toSlide(slide,i,projectName) {
     const layout=entityTextLayout(entity.type);
     const left=X(x-w/2),right=X(x+w/2),top=Y(y-h/2),bottom=Y(y+h/2);
     const symbolName=entity.name+' — '+t.label;
-    if (t.shape) parts+=shape(symbolName,left,top,w*scale,h*scale,t.shape,null,'000000',false);
+    if (t.shape) parts+=shape(symbolName,left,top,w*scale,h*scale,t.shape,null,t.stroke||'000000',false);
     if (t.inside==='ellipse') parts+=shape(symbolName+' oval',left,top,w*scale,h*scale,'ellipse',null,'000000',false);
     if (t.inside==='triangle' || t.inside==='downTriangle') {
       const upright=t.inside==='triangle';
