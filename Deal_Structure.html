@@ -23,7 +23,7 @@
         <div id="title-field" hidden><label for="step-title" class="step-title-label">Step title <span class="count">(optional)</span></label><input id="step-title" class="field" maxlength="90" placeholder="e.g. Acquisition of Partnership X"></div>
         <div class="field-head"><label id="input-label" for="description">Ownership description</label><button id="example" class="quiet example">Use example</button></div>
         <textarea id="description" maxlength="4000"></textarea>
-        <div class="buttons"><button id="generate" class="primary">Generate starting chart <span aria-hidden="true">→</span></button><button id="interpret" hidden>Interpret with AI</button></div>
+        <div class="buttons"><button id="interpret" class="primary" hidden>Generate draft with AI</button></div>
         <p id="message" class="notice" role="status" hidden></p><p id="ai-note" class="desc" hidden>AI sends this description and the preceding approved chart to OpenRouter.</p><details id="ai-evidence" class="help" hidden><summary>AI interpretation and source phrases</summary><ul id="ai-changes"></ul></details>
         <details class="help"><summary>Supported wording</summary><ul id="syntax"></ul></details>
         <div class="project-meta"><label class="step-title-label" for="project-name">Deck name</label><input id="project-name" class="field" maxlength="80" placeholder="Transaction structure"></div>
@@ -445,7 +445,7 @@ function aiDraft(description, prior, result) {
     const names=[...new Set(result.operations.filter((_,i)=>!citations[i]).map(op=>op?.entity).filter(name=>typeof name==='string' && name.length<=100))];
     return {graph,issues:[
       'AI could not match the supporting wording for '+(names.length?names.join(', '):'one or more changes')+
-      '. Try Interpret with AI again, or open Edit chart to make the changes yourself.'
+      '. Try generating the draft again with AI, or open Edit chart to make the changes yourself.'
     ],evidence};
   }
   const find=name=>{
@@ -462,6 +462,8 @@ function aiDraft(description, prior, result) {
   const validType=type=>typeof type==='string' && Object.hasOwn(types,type);
   const seenChanges=new Set();
   const resets=new Set();
+  const mergers=[];
+  let nextId=Math.max(0,...graph.entities.map(entity=>entity.id))+1;
   for (const [index,op] of result.operations.entries()) {
     const id=JSON.stringify([op.kind,op.entity,op.owner,op.recipient,op.name,op.classification,op.percentage,op.basis]);
     if (seenChanges.has(id)) throw Error('The model repeated a change. Split the description or adjust the chart manually.');
@@ -470,7 +472,7 @@ function aiDraft(description, prior, result) {
       const name=validName(op.entity);
       if (!validType(op.classification) || graph.entities.length>=36 ||
           graph.entities.some(entity=>nameKey(entity.name)===nameKey(name))) throw Error('The model tried to add an invalid or duplicate entity.');
-      graph.entities.push({id:Math.max(0,...graph.entities.map(entity=>entity.id))+1,name,type:op.classification});
+      graph.entities.push({id:nextId++,name,type:op.classification});
     } else {
       const entity=find(op.entity);
       switch (op.kind) {
@@ -492,8 +494,14 @@ function aiDraft(description, prior, result) {
           resets.add(entity.id);
           graph.edges=graph.edges.filter(edge=>edge.target!==entity.id);
           break;
+        case 'merge_entity':
         case 'remove_entity':
           if (graph.edges.some(edge=>edge.owner===entity.id)) throw Error('Clarify who receives the interests held by '+entity.name+'.');
+          if (op.kind==='merge_entity') {
+            const survivor=find(op.recipient);
+            if (survivor===entity) throw Error('The merging entity and survivor must be different.');
+            mergers.push({source:{...entity},target:survivor.id});
+          }
           graph.edges=graph.edges.filter(edge=>edge.target!==entity.id);
           graph.entities=graph.entities.filter(other=>other!==entity);
           resets.delete(entity.id);
@@ -517,20 +525,41 @@ function aiDraft(description, prior, result) {
   }
   const invalid=getValidation(graph);
   if (invalid) throw Error(invalid);
-  return {graph,issues,evidence};
+  if (mergers.length!==slideMergers(graph,mergers).length) throw Error('A merger arrow must lead to a survivor shown on this slide.');
+  return {graph,issues,evidence,mergers};
 }
-function componentLayout(graph) {
+function slideMergers(graph,mergers=[]) {
+  const visible=new Set(graph.entities.map(entity=>entity.id));
+  return [...mergers].reverse().filter(merge=>{
+    if (!visible.has(merge.target) || visible.has(merge.source.id)) return false;
+    visible.add(merge.source.id);
+    return true;
+  }).reverse();
+}
+function componentLayout(graph,mergers=[]) {
   let order;
   try { order = validate(graph); }
   catch { return null; }
+  mergers=slideMergers(graph,mergers);
+  const entities=[...graph.entities,...mergers.map(merge=>merge.source)];
+  const byId=new Map(entities.map(entity=>[entity.id,entity]));
+  const connections=[...graph.edges,...mergers.map(merge=>({owner:merge.source.id,target:merge.target}))];
+  const mergerSources=new Map();
+  for (const {source,target} of mergers) {
+    const members=mergerSources.get(target)??[];
+    members.push(source.id);
+    mergerSources.set(target,members);
+  }
+  const alongside=id=>[...(mergerSources.get(id)??[]).flatMap(alongside),id];
+  order=order.map(rank=>rank.flatMap(alongside));
   const width=920, height=375;
   const seen = new Set();
   const components = [];
-  graph.entities.forEach(entity => {
+  entities.forEach(entity => {
     if (seen.has(entity.id)) return;
     const group = new Set([entity.id]);
     for (const id of group) {
-      graph.edges.forEach(edge=>{
+      connections.forEach(edge=>{
         if (edge.owner===id) group.add(edge.target);
         if (edge.target===id) group.add(edge.owner);
       });
@@ -593,7 +622,18 @@ function componentLayout(graph) {
     }
     return {...edge,points,label};
   });
-  return {nodes,edges,width:naturalWidth,height:naturalHeight};
+  const arrows=mergers.map(({source,target},index)=>{
+    const a=nodes.get(source.id), b=nodes.get(target);
+    const sourceShape=types[source.type].shape, targetShape=types[byId.get(target).type].shape;
+    const rightEdge=box=>box.x+box.w/2;
+    const leftEdge=box=>box.x-box.w/2;
+    const adjacent=b.x-a.x<=a.w+68;
+    const points=adjacent
+      ? [{x:rightEdge(a)-(sourceShape==='triangle'?a.w/4:0),y:a.y},{x:leftEdge(b)+(targetShape==='triangle'?b.w/4:0)-2,y:b.y}]
+      : [{x:a.x,y:a.y-a.h/2},{x:a.x,y:a.y-a.h/2-12-index%3*6},{x:b.x,y:b.y-b.h/2-12-index%3*6},{x:b.x,y:b.y-b.h/2-3}];
+    return {points, source:source.name,target:byId.get(target).name};
+  });
+  return {nodes,edges,entities,arrows,width:naturalWidth,height:naturalHeight};
 }
 function nameLines(name, max=18) {
   const words = name.split(/\s+/);
@@ -640,9 +680,10 @@ function entityTextLayout(type) {
   if (t.tag) return {offset:-6,width:.86,size:12,chars:17};
   return {offset:0,width:.88,size:13,chars:17};
 }
-function diagramSvg(graph) {
-  const l=componentLayout(graph);
-  if (!l || !graph.entities.length) return '<svg class="diagram" viewBox="0 0 920 375" role="img" aria-label="Chart unavailable"><text x="460" y="188" text-anchor="middle" fill="#526176" font-size="19">'+(l?'Add entities to draw this chart.':'Edit the ownership lines to draw this chart.')+'</text></svg>';
+function diagramSvg(graph,mergers) {
+  if (!graph.entities.length) return '<svg class="diagram" viewBox="0 0 920 375" aria-hidden="true"></svg>';
+  const l=componentLayout(graph,mergers);
+  if (!l) return '<svg class="diagram" viewBox="0 0 920 375" role="img" aria-label="Chart unavailable"><text x="460" y="188" text-anchor="middle" fill="#526176" font-size="19">'+(l?'Add entities to draw this chart.':'Edit the ownership lines to draw this chart.')+'</text></svg>';
   let svg='<svg class="diagram" viewBox="0 0 '+l.width+' '+l.height+'" role="img" aria-label="Entity ownership chart"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0l10 5-10 5z" fill="#000"/></marker></defs>';
   l.edges.forEach(edge=>{
     svg+='<polyline points="'+edge.points.map(p=>p.x+','+p.y).join(' ')+'" stroke="#000" stroke-width="1.65" fill="none" marker-end="url(#arrow)"/>';
@@ -652,7 +693,10 @@ function diagramSvg(graph) {
     const value=displayPercent(pct), w=12+value.length*7;
     svg+='<rect x="'+(x-w/2)+'" y="'+(y-10)+'" width="'+w+'" height="20" rx="4" fill="#fff"/><text text-anchor="middle" x="'+x+'" y="'+(y+4.3)+'" font-size="13" font-weight="650" fill="#3b4b69">'+value+'</text>';
   });
-  graph.entities.forEach(entity=>{
+  l.arrows.forEach(({points,source,target})=>{
+    svg+='<polyline points="'+points.map(p=>p.x+','+p.y).join(' ')+'" stroke="#000" stroke-width="1.9" stroke-linecap="round" stroke-dasharray="1 5" fill="none" marker-end="url(#arrow)"><title>'+escape(source+' merges into '+target)+'</title></polyline>';
+  });
+  l.entities.forEach(entity=>{
     const box=l.nodes.get(entity.id);
     const layout=entityTextLayout(entity.type),lines=nameLines(entity.name,layout.chars);
     svg+='<g><title>'+escape(entity.name+' · '+types[entity.type].label)+'</title>'+svgShape(entity,box);
@@ -694,7 +738,7 @@ function notice(element, value, good=false) {
   element.hidden=!value;
   element.classList.toggle('good',good);
 }
-const sample = {title:'Starting structure', description:'', graph:parse(startingExample).graph};
+const blankSlide = {title:'Starting structure', description:'', graph:empty()};
 const syntaxStart=[
   'Partnership X is owned 50% by A and 50% by B.',
   'Corporation Y has a wholly owned LLC subsidiary Z.',
@@ -713,11 +757,11 @@ const syntaxStep=[
   'Y creates a wholly owned LLC Newco. X changes its name to Target LLC.',
   'Newco elects to be taxed as a corporation.',
   'Post-closing ownership of X: Z 70%, B 30%. Include all owners and a total of 100%.',
-  'X merges into Z without changing the survivor’s ownership. Specify any subsidiary transfers first.',
+  'X merges into Z. Name the survivor and describe any changes to ownership or subsidiary transfers.',
   'Use “Note: …” for narrative that does not change ownership. For complex steps, you can state the final ownership directly or use Edit chart.'
 ];
 const queuedOffset = () => typeof selected==='string' && selected.startsWith('queued:') ? Number(selected.slice(7)) : -1;
-const getVisible = () => selected==='draft' ? project.draft : queuedOffset()>=0 ? project.pending[queuedOffset()] : project.approved[selected] ?? sample;
+const getVisible = () => selected==='draft' ? project.draft : queuedOffset()>=0 ? project.pending[queuedOffset()] : project.approved[selected] ?? blankSlide;
 const isStepDraft = () => project.draft && project.draft.index>0;
 const slideTitle = (index,input) => index===0?'Starting structure':input||'Transaction step '+index;
 function sameChart(a,b) {
@@ -784,11 +828,10 @@ function render() {
   $('description').value=active?(draftInput?.text ?? active.description):modeStep?project.stepText:project.startText;
   $('description').disabled=!canType;
   $('step-title').disabled=!canType;
-  $('generate').disabled=!canType;
   $('example').disabled=!canType;
   $('interpret').hidden=!aiEnabled;
   $('interpret').disabled=!canType || aiBusy;
-  $('interpret').textContent=aiBusy?'Interpreting…':'Interpret with AI';
+  $('interpret').textContent=aiBusy?'Interpreting…':active?'Update draft with AI':'Generate draft with AI';
   const evidence=draft?active.evidence??[]:[];
   $('ai-evidence').hidden=!evidence.length;
   $('ai-changes').replaceChildren(...evidence.map(change=>{
@@ -796,11 +839,9 @@ function render() {
     li.textContent=change;
     return li;
   }));
-  $('generate').firstChild.textContent=(active?'Update draft':modeStep?'Generate step chart':'Generate starting chart')+' ';
   $('syntax').replaceChildren(...(modeStep?syntaxStep:syntaxStart).map(value=>{const li=document.createElement('li');li.textContent=value;return li;}));
   $('count').textContent=project.approved.length+' approved'+(reviewing?' · '+project.pending.length+' to re-review':'');
   $('slides').replaceChildren();
-  if (!hasStarting && !active) $('slides').append(slideButton('Starting structure',0,true,'Example'));
   const addSlide=(title,i,isCurrent,status,value)=>{
     const btn=slideButton(title,i,isCurrent,status);
     btn.onclick=()=>choose(value);
@@ -821,17 +862,17 @@ function render() {
   const caption=index>0?current.description:'';
   $('sheet-caption').textContent=caption;
   $('sheet-caption').hidden=!caption;
-  $('diagram').innerHTML=diagramSvg(current.graph);
+  $('diagram').innerHTML=diagramSvg(current.graph,current.mergers);
   $('sheet-project').textContent=project.name || 'Transaction structure';
   $('sheet-no').textContent=String(index+1).padStart(2,'0');
   $('status').className='tag '+(draft||waiting?'review':example?'':'ok');
-  $('status').textContent=draft?'Awaiting approval':waiting?'Previous chart · re-review required':example?'Example chart':'Approved';
-  $('review-copy').textContent=example?'Generate a chart to review and approve your starting structure.':waiting?(offset===0?'Rebuild this step from the revised prior chart.':'Re-review the preceding steps first.'):draft?(validation || (active.issues.length?'Resolve the flagged wording or update the chart manually.':active.replace && active.index<project.approved.length-1?'Changing this chart sends later steps for re-review.':'Check the ownership and classifications before approving.')):active?'Finish or discard the current draft before revising another slide.':'This slide is ready to export.';
+  $('status').textContent=draft?'Awaiting approval':waiting?'Previous chart · re-review required':example?'Start here':'Approved';
+  $('review-copy').textContent=example?'Describe the starting ownership structure to generate your first draft.':waiting?(offset===0?'Rebuild this step from the revised prior chart.':'Re-review the preceding steps first.'):draft?(validation || (active.issues.length?'Resolve the flagged wording or update the chart manually.':active.replace && active.index<project.approved.length-1?'Changing this chart sends later steps for re-review.':'Check the ownership and classifications before approving.')):active?'Finish or discard the current draft before revising another slide.':'This slide is ready to export.';
   $('revise').hidden=Boolean(draft || waiting || example || active);
   $('review-next').hidden=!(offset===0 && !active);
   $('edit').hidden=!draft;
   $('approve').hidden=!draft;
-  $('approve').disabled=Boolean(validation || (draft && (active.issues.length || active.manualReview || draftInput)));
+  $('approve').disabled=Boolean(validation || (draft && (active.issues.length || active.manualReview || active.needsInterpretation || draftInput)));
   $('approve').textContent=active?.replace?'Approve revision':index===0?'Approve starting structure':'Approve step';
   $('discard').hidden=!draft;
   $('discard').textContent=active?.replace?'Discard revision':'Discard draft';
@@ -844,7 +885,7 @@ function render() {
   $('previous-chart').hidden=!priorSnapshot;
   if (priorSnapshot) $('previous-graph').replaceChildren(...summarizeChart(priorSnapshot.graph));
   if (draft) {
-    showMessage([...(draftInput?['Update the draft to apply the revised wording.']:[]),...(current.issues.length?['Review these statements before approval:',...current.issues]:[]),...(current.manualReview?[project.pending[0]?.manual?'This step previously included manual edits. Compare the previously approved chart, then apply any needed changes using Edit chart.':'This step used AI. Interpret it again or compare the previously approved chart and apply the changes using Edit chart.']:[]),...(validation?[validation]:[])].join('\n'));
+    showMessage([...(draftInput?['Select Update draft with AI to apply the revised wording.']:[]),...(current.issues.length?['Review these statements before approval:',...current.issues]:[]),...(current.manualReview?[project.pending[0]?.manual?'This step previously included manual edits. Compare the previously approved chart, then apply any needed changes using Edit chart.':'Compare the previously approved chart and apply any needed changes using Edit chart.']:[]),...(validation?[validation]:[])].join('\n'));
   } else showMessage();
 }
 function getValidation(graph) {
@@ -865,8 +906,8 @@ function updateDraftInput() {
   draftInput=value!==description || (project.draft.index>0 && title!==(inputTitle ?? '')) ? {title,text:value} : null;
   project.draft.pendingInput=draftInput;
   const error=getValidation(project.draft.graph);
-  $('approve').disabled=Boolean(draftInput || project.draft.issues.length || project.draft.manualReview || error);
-  if (draftInput) showMessage('Update the draft to apply the revised wording.');
+  $('approve').disabled=Boolean(draftInput || project.draft.issues.length || project.draft.manualReview || project.draft.needsInterpretation || error);
+  if (draftInput) showMessage('Select Update draft with AI to apply the revised wording.');
   else showMessage([...project.draft.issues,...(error?[error]:[])].join('\n'));
   persist();
 }
@@ -896,30 +937,13 @@ $('revise').onclick=()=>{
   persist(); choose('draft'); $('description').focus();
 };
 $('review-next').onclick=()=>{
-  if (project.draft || !project.pending.length || queuedOffset()!==0) return;
+  if (aiBusy || project.draft || !project.pending.length || queuedOffset()!==0) return;
   const original=project.pending[0];
   const index=project.approved.length;
-  const result=parse(original.description,project.approved[index-1].graph);
-  project.draft={...result,queued:true,manualReview:original.manual===true || original.ai===true,index,title:original.title,inputTitle:original.inputTitle??original.title,description:original.description};
+  project.draft={graph:clone(project.approved[index-1].graph),issues:[],queued:true,needsInterpretation:true,
+    manualReview:original.manual===true,index,title:original.title,inputTitle:original.inputTitle??original.title,description:original.description};
   persist(); choose('draft');
-};
-$('generate').onclick=()=>{
-  const active=project.draft;
-  if ((active && selected!=='draft') || (!active && project.pending.length)) return;
-  const description=$('description').value.trim();
-  if (!description) { showMessage('Enter an ownership or transaction description.'); $('description').focus(); return; }
-  const index=active?.index ?? project.approved.length;
-  const inputTitle=$('step-title').value.trim();
-  const title=slideTitle(index,inputTitle);
-  const prior=index>0?project.approved[index-1].graph:null;
-  if (active && description===active.description) project.draft={...active,title,inputTitle};
-  else {
-    const result=parse(description,prior);
-    project.draft={...result,index,replace:Boolean(active?.replace),queued:Boolean(active?.queued),manualReview:Boolean(active?.manualReview),description,inputTitle,title};
-  }
-  delete project.draft.pendingInput;
-  draftInput=null;
-  persist(); choose('draft');
+  return $('interpret').onclick();
 };
 $('interpret').onclick=async()=>{
   const active=project.draft;
@@ -950,7 +974,10 @@ $('interpret').onclick=async()=>{
     const result=aiDraft(description,prior,data);
     const inputTitle=rawTitle.trim();
     project.draft={
-      ...result,index,replace:Boolean(active?.replace),queued:Boolean(active?.queued),
+      ...result,
+      graph:result.issues.length && active?active.graph:result.graph,
+      mergers:result.issues.length && active?active.mergers:result.mergers,
+      index,replace:Boolean(active?.replace),queued:Boolean(active?.queued),
       manualReview:Boolean(active?.queued && project.pending[0]?.manual),
       title:slideTitle(index,inputTitle),description,inputTitle,ai:true
     };
@@ -962,15 +989,15 @@ $('interpret').onclick=async()=>{
     if (stillCurrent()) message='AI interpretation could not be applied. '+error.message;
   } finally {
     aiBusy=false;
-    $('interpret').textContent='Interpret with AI';
-    $('interpret').disabled=$('generate').disabled;
+    $('interpret').textContent=project.draft?'Update draft with AI':'Generate draft with AI';
+    $('interpret').disabled=$('description').disabled;
     if (message) showMessage(message,message.startsWith('AI draft ready.'));
     else if ($('message').textContent==='Interpreting this description with OpenRouter…') showMessage();
   }
 };
 $('approve').onclick=()=>{
   const draft=project.draft;
-  if (!draft || draftInput || draft.issues.length || draft.manualReview || getValidation(draft.graph)) return;
+  if (!draft || draftInput || draft.issues.length || draft.manualReview || draft.needsInterpretation || getValidation(draft.graph)) return;
   const {index,title,description,graph,inputTitle}=draft;
   const previous=project.approved[index];
   const manual=draft.manual===true || (draft.manual===undefined && previous && usesManualChart(previous,index>0?project.approved[index-1].graph:null));
@@ -979,7 +1006,7 @@ $('approve').onclick=()=>{
     project.approved.splice(index+1);
     project.pending=[...later,...project.pending];
   }
-  project.approved[index]={title,description,graph,inputTitle,manual:Boolean(manual),ai:draft.ai===true};
+  project.approved[index]={title,description,graph,inputTitle,mergers:draft.mergers??[],manual:Boolean(manual),ai:draft.ai===true};
   if (draft.queued) project.pending.shift();
   if (!draft.replace && !draft.queued) { project.stepText=''; project.stepTitle=''; }
   draftInput=null;
@@ -1083,7 +1110,7 @@ $('apply').onclick=()=>{
     });
     const error=getValidation(graph); if (error) throw Error(error);
     const current=getVisible();
-    project.draft={...current,graph,issues:[],manual:true,manualReview:false};
+    project.draft={...current,graph,mergers:slideMergers(graph,current.mergers),issues:[],manual:true,manualReview:false,needsInterpretation:false};
     persist(); choose('draft');
     if (!draftInput) showMessage('Chart edits applied. Review the slide before approving.',true);
     $('edit').focus();
@@ -1115,7 +1142,7 @@ function contentTypes(count) {
   return xmlDeclaration+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+overrides.map(([name,type])=>'<Override PartName="'+name+'" ContentType="'+type+'"/>').join('')+'</Types>';
 }
 function toSlide(slide,i,projectName) {
-  const l=componentLayout(slide.graph);
+  const l=componentLayout(slide.graph,slide.mergers);
   const caption=i?slide.description:'';
   const capLines=caption?caption.split('\n').flatMap(line=>wrapText(line,130)):[];
   const capSize=capLines.length>12?9:capLines.length>6?11:15;
@@ -1133,10 +1160,10 @@ function toSlide(slide,i,projectName) {
     const body='<p:txBody><a:bodyPr lIns="0" tIns="0" rIns="0" bIns="0" wrap="'+(fit?'square':'none')+'" anchor="ctr">'+(fit?'<a:normAutofit/>':'<a:noAutofit/>')+'</a:bodyPr><a:lstStyle/>'+paragraphs+'</p:txBody>';
     return shape(name,x,y,w,h,'rect',fill,null,false,body);
   };
-  const line=(name,x1,y1,x2,y2,hex='687895',arrow=false)=>{
+  const line=(name,x1,y1,x2,y2,hex='687895',arrow=false,dotted=false)=>{
     if(x1===x2&&y1===y2) return '';
     const flip=(x2<x1?' flipH="1"':'')+(y2<y1?' flipV="1"':'');
-    return '<p:cxnSp><p:nvCxnSpPr><p:cNvPr id="'+(++id)+'" name="'+name+'"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr><p:spPr>'+xfrm(Math.min(x1,x2),Math.min(y1,y2),Math.abs(x2-x1),Math.abs(y2-y1),flip)+geom('line')+'<a:ln w="14600">'+color(hex)+(arrow?'<a:tailEnd type="triangle" w="sm" len="sm"/>':'')+'</a:ln></p:spPr></p:cxnSp>';
+    return '<p:cxnSp><p:nvCxnSpPr><p:cNvPr id="'+(++id)+'" name="'+name+'"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr><p:spPr>'+xfrm(Math.min(x1,x2),Math.min(y1,y2),Math.abs(x2-x1),Math.abs(y2-y1),flip)+geom('line')+'<a:ln w="14600">'+color(hex)+(dotted?'<a:prstDash val="sysDot"/>':'')+(arrow?'<a:tailEnd type="triangle" w="sm" len="sm"/>':'')+'</a:ln></p:spPr></p:cxnSp>';
   };
   let parts=textBox('Slide label',[i?'TRANSACTION STEP '+i:'PRE-TRANSACTION'],65,36,1148,22,{size:13,hex:'4039B8',bold:true});
   parts+=textBox('Slide title',[slide.title],65,64,1150,51,{size:41,font:'Georgia',fit:true});
@@ -1154,7 +1181,13 @@ function toSlide(slide,i,projectName) {
     const value=displayPercent(edge.pct), width=(12+value.length*7)*scale;
     parts+=textBox('Ownership percentage',[value],X(edge.label.x)-width/2,Y(edge.label.y)-10*scale,width,20*scale,{size:13*scale,align:'ctr',bold:true,hex:'3B4B69',fill:'FFFFFF'});
   });
-  slide.graph.entities.forEach(entity=>{
+  l.arrows.forEach(({points,source,target})=>{
+    points.slice(1).forEach((point,i)=>{
+      const before=points[i];
+      parts+=line(escape(source+' merges into '+target),X(before.x),Y(before.y),X(point.x),Y(point.y),'000000',i===points.length-2,true);
+    });
+  });
+  l.entities.forEach(entity=>{
     const t=types[entity.type], box=l.nodes.get(entity.id);
     const {x,y,w,h}=box;
     const layout=entityTextLayout(entity.type);
